@@ -6,7 +6,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useComplaints } from '@/hooks/useComplaints';
 import { ComplaintCard } from '@/components/ui/ComplaintCard';
-import { Image } from 'expo-image';
 import { theme } from '@/constants/theme';
 import { ComplaintStatus, STATUSES } from '@/constants/config';
 
@@ -23,11 +22,14 @@ export default function ComplaintsScreen() {
     let filtered = complaints;
 
     // Role-based filtering
-    if (user?.role === 'student') {
-      filtered = filtered.filter(c => c.studentId === user.id);
-    } else if (user?.role === 'staff') {
-      filtered = filtered.filter(c => c.assignedStaffId === user.id);
+    if (user?.role === 'staff') {
+      // Staff see what they reported
+      filtered = filtered.filter(c => c.reporterId === user.id);
+    } else if (user?.role === 'manager') {
+      // Managers see what's assigned to them
+      filtered = filtered.filter(c => c.assignedManagerId === user.id);
     }
+    // Admin sees everything
 
     // Status filter
     if (statusFilter !== 'all') {
@@ -54,19 +56,14 @@ export default function ComplaintsScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Image
-        source={require('@/assets/images/empty-complaints.png')}
-        style={styles.emptyImage}
-        contentFit="contain"
-        transition={200}
-      />
+      <MaterialIcons name="assignment-late" size={80} color={theme.colors.textLight} style={styles.emptyIcon} />
       <Text style={styles.emptyTitle}>No complaints found</Text>
       <Text style={styles.emptyText}>
-        {user?.role === 'student'
+        {user?.role === 'staff'
           ? 'You have not submitted any complaints yet'
-          : user?.role === 'staff'
-          ? 'No complaints assigned to you'
-          : 'No complaints in the system'}
+          : user?.role === 'manager'
+            ? 'No complaints assigned to you'
+            : 'No complaints in the system'}
       </Text>
     </View>
   );
@@ -75,9 +72,9 @@ export default function ComplaintsScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          {user?.role === 'student' ? 'My Complaints' : 
-           user?.role === 'admin' ? 'All Complaints' : 
-           'Assigned Tasks'}
+          {user?.role === 'staff' ? 'My Reported Issues' :
+            user?.role === 'admin' ? 'System Overview' :
+              'Assigned Tasks'}
         </Text>
       </View>
 
@@ -85,7 +82,7 @@ export default function ComplaintsScreen() {
         <MaterialIcons name="search" size={20} color={theme.colors.textLight} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search complaints..."
+          placeholder="Search by title, desc or location..."
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor={theme.colors.textLight}
@@ -120,7 +117,7 @@ export default function ComplaintsScreen() {
           <ComplaintCard
             complaint={item}
             onPress={() => handleComplaintPress(item.id)}
-            showStudent={user?.role !== 'student'}
+            showReporter={user?.role !== 'staff'}
           />
         )}
         keyExtractor={item => item.id}
@@ -199,10 +196,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: theme.spacing.xxl,
   },
-  emptyImage: {
-    width: 200,
-    height: 200,
+  emptyIcon: {
     marginBottom: theme.spacing.lg,
+    opacity: 0.5,
   },
   emptyTitle: {
     fontSize: theme.fontSize.xl,
@@ -214,5 +210,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
     textAlign: 'center',
+    paddingHorizontal: theme.spacing.xl,
   },
 });

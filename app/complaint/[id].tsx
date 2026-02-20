@@ -22,22 +22,21 @@ export default function ComplaintDetailScreen() {
   const insets = useSafeAreaInsets();
   const { showAlert } = useAlert();
 
-  const [showStatusPicker, setShowStatusPicker] = useState(false);
-  const [showStaffPicker, setShowStaffPicker] = useState(false);
+  const [showManagerPicker, setShowManagerPicker] = useState(false);
   const [resolutionNote, setResolutionNote] = useState('');
-  const [staffList, setStaffList] = useState<any[]>([]);
+  const [managerList, setManagerList] = useState<any[]>([]);
   const [updates, setUpdates] = useState<ComplaintUpdate[]>([]);
 
   const complaint = complaints.find(c => c.id === id);
 
   useEffect(() => {
-    loadStaff();
+    loadManagers();
     loadUpdates();
   }, []);
 
-  async function loadStaff() {
+  async function loadManagers() {
     const users = await storage.getAllUsers();
-    setStaffList(users.filter(u => u.role === 'staff'));
+    setManagerList(users.filter(u => u.role === 'manager'));
   }
 
   async function loadUpdates() {
@@ -63,32 +62,31 @@ export default function ComplaintDetailScreen() {
       updatedByName: user?.name || '',
     });
 
-    setShowStatusPicker(false);
     setResolutionNote('');
     await loadUpdates();
     showAlert('Success', `Complaint status updated to ${newStatus}`);
   };
 
-  const handleAssignStaff = async (staffId: string, staffName: string) => {
+  const handleAssignManager = async (managerId: string, managerName: string) => {
     if (!complaint) return;
 
     await updateComplaint(complaint.id, {
-      assignedStaffId: staffId,
-      assignedStaffName: staffName,
+      assignedManagerId: managerId,
+      assignedManagerName: managerName,
       status: 'in_progress',
     });
 
     await addComplaintUpdate({
       complaintId: complaint.id,
       status: 'in_progress',
-      note: `Assigned to ${staffName}`,
+      note: `Complaint assigned to manager ${managerName}`,
       updatedBy: user?.id || '',
       updatedByName: user?.name || '',
     });
 
-    setShowStaffPicker(false);
+    setShowManagerPicker(false);
     await loadUpdates();
-    showAlert('Success', `Complaint assigned to ${staffName}`);
+    showAlert('Success', `Task assigned to ${managerName}`);
   };
 
   if (!complaint) {
@@ -100,7 +98,7 @@ export default function ComplaintDetailScreen() {
   }
 
   const category = COMPLAINT_CATEGORIES.find(c => c.id === complaint.category);
-  const canManage = user?.role === 'admin' || (user?.role === 'staff' && complaint.assignedStaffId === user.id);
+  const canManage = user?.role === 'admin' || (user?.role === 'manager' && complaint.assignedManagerId === user.id);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -108,7 +106,7 @@ export default function ComplaintDetailScreen() {
         <Pressable onPress={() => router.back()} hitSlop={20}>
           <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
         </Pressable>
-        <Text style={styles.headerTitle}>Complaint Details</Text>
+        <Text style={styles.headerTitle}>Details</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -132,7 +130,7 @@ export default function ComplaintDetailScreen() {
             </View>
             <View style={styles.metaItem}>
               <MaterialIcons name="person" size={16} color={theme.colors.textSecondary} />
-              <Text style={styles.metaText}>{complaint.studentName}</Text>
+              <Text style={styles.metaText}>{complaint.reporterName}</Text>
             </View>
           </View>
 
@@ -144,12 +142,12 @@ export default function ComplaintDetailScreen() {
           </View>
         </View>
 
-        {complaint.assignedStaffName && (
+        {complaint.assignedManagerName && (
           <View style={styles.assignmentCard}>
-            <MaterialIcons name="assignment-ind" size={24} color={theme.colors.info} />
+            <MaterialIcons name="engineering" size={24} color={theme.colors.info} />
             <View style={styles.assignmentInfo}>
-              <Text style={styles.assignmentLabel}>Assigned to</Text>
-              <Text style={styles.assignmentName}>{complaint.assignedStaffName}</Text>
+              <Text style={styles.assignmentLabel}>Assigned Manager</Text>
+              <Text style={styles.assignmentName}>{complaint.assignedManagerName}</Text>
             </View>
           </View>
         )}
@@ -174,28 +172,32 @@ export default function ComplaintDetailScreen() {
 
         {canManage && (
           <View style={styles.actionsCard}>
-            <Text style={styles.sectionTitle}>Manage Complaint</Text>
+            <Text style={styles.sectionTitle}>Actions</Text>
 
-            {user?.role === 'admin' && !complaint.assignedStaffId && (
+            {user?.role === 'admin' && !complaint.assignedManagerId && (
               <>
                 <Button
-                  title="Assign to Staff"
-                  onPress={() => setShowStaffPicker(!showStaffPicker)}
+                  title="Assign to Manager"
+                  onPress={() => setShowManagerPicker(!showManagerPicker)}
                   variant="outline"
                   fullWidth
                 />
-                {showStaffPicker && (
+                {showManagerPicker && (
                   <View style={styles.pickerOptions}>
-                    {staffList.map(staff => (
-                      <Pressable
-                        key={staff.id}
-                        style={styles.pickerOption}
-                        onPress={() => handleAssignStaff(staff.id, staff.name)}
-                      >
-                        <Text style={styles.pickerText}>{staff.name}</Text>
-                        <Text style={styles.pickerSubtext}>{staff.department}</Text>
-                      </Pressable>
-                    ))}
+                    {managerList.length === 0 ? (
+                      <Text style={styles.emptyText}>No managers available</Text>
+                    ) : (
+                      managerList.map(mgr => (
+                        <Pressable
+                          key={mgr.id}
+                          style={styles.pickerOption}
+                          onPress={() => handleAssignManager(mgr.id, mgr.name)}
+                        >
+                          <Text style={styles.pickerText}>{mgr.name}</Text>
+                          <Text style={styles.pickerSubtext}>{mgr.department}</Text>
+                        </Pressable>
+                      ))
+                    )}
                   </View>
                 )}
               </>
@@ -216,7 +218,7 @@ export default function ComplaintDetailScreen() {
                 <View style={styles.statusButtons}>
                   {complaint.status !== 'in_progress' && (
                     <Button
-                      title="Mark In Progress"
+                      title="Set as In Progress"
                       onPress={() => handleStatusChange('in_progress')}
                       variant="outline"
                       fullWidth
@@ -430,6 +432,12 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
     marginTop: 2,
+  },
+  emptyText: {
+    padding: theme.spacing.md,
+    color: theme.colors.textLight,
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
   errorText: {
     fontSize: theme.fontSize.lg,

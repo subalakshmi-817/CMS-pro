@@ -1,95 +1,147 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getSharedSupabaseClient } from '@/template/core/client';
 import { User, Complaint, ComplaintUpdate } from '@/types';
+import { Role } from '@/constants/config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEYS = {
   CURRENT_USER: '@current_user',
-  USERS: '@users',
-  COMPLAINTS: '@complaints',
-  COMPLAINT_UPDATES: '@complaint_updates',
 };
 
-// Initialize mock data
-const MOCK_USERS: User[] = [
-  {
-    id: 'student1',
-    name: 'Rahul Kumar',
-    email: 'student@campus.edu',
-    role: 'student',
-    rollNumber: 'CS2021001',
-    department: 'Computer Science',
-  },
-  {
-    id: 'admin1',
-    name: 'Dr. Sharma',
-    email: 'admin@campus.edu',
-    role: 'admin',
-    department: 'Administration',
-  },
-  {
-    id: 'staff1',
-    name: 'Ramesh Patel',
-    email: 'staff@campus.edu',
-    role: 'staff',
-    department: 'IT Support',
-  },
-  {
-    id: 'staff2',
-    name: 'Priya Singh',
-    email: 'staff2@campus.edu',
-    role: 'staff',
-    department: 'Facilities',
-  },
-];
-
 export async function initializeStorage(): Promise<void> {
-  try {
-    const existingUsers = await AsyncStorage.getItem(KEYS.USERS);
-    if (!existingUsers) {
-      await AsyncStorage.setItem(KEYS.USERS, JSON.stringify(MOCK_USERS));
-    }
-    
-    const existingComplaints = await AsyncStorage.getItem(KEYS.COMPLAINTS);
-    if (!existingComplaints) {
-      await AsyncStorage.setItem(KEYS.COMPLAINTS, JSON.stringify([]));
-    }
-    
-    const existingUpdates = await AsyncStorage.getItem(KEYS.COMPLAINT_UPDATES);
-    if (!existingUpdates) {
-      await AsyncStorage.setItem(KEYS.COMPLAINT_UPDATES, JSON.stringify([]));
-    }
-  } catch (error) {
-    console.error('Failed to initialize storage:', error);
-  }
+  // No explicit initialization needed for Supabase
 }
 
 export async function login(email: string, password: string): Promise<User | null> {
   try {
-    const usersJson = await AsyncStorage.getItem(KEYS.USERS);
-    if (!usersJson) return null;
-    
-    const users: User[] = JSON.parse(usersJson);
-    const user = users.find(u => u.email === email);
-    
-    if (user) {
-      await AsyncStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
-      return user;
+    const supabase = getSharedSupabaseClient();
+    const { data: { user: authUser }, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError || !authUser) {
+      console.error('Auth error:', authError?.message);
+      return null;
     }
-    
-    return null;
+
+    // Fetch user profile
+    const { data: profile, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', authUser.id)
+      .single();
+
+    if (profileError || !profile) {
+      console.error('Profile error:', profileError?.message);
+      return null;
+    }
+
+    const user: User = {
+      id: profile.id,
+      name: profile.name,
+      email: profile.email,
+      role: profile.role,
+      employeeId: profile.employee_id,
+      department: profile.department,
+    };
+
+    await AsyncStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+    return user;
   } catch (error) {
     console.error('Login failed:', error);
     return null;
   }
 }
 
+export async function signup(
+  email: string,
+  password: string,
+  name: string,
+  role: Role,
+  employeeId?: string,
+  department?: string
+): Promise<User | null> {
+  try {
+    const supabase = getSharedSupabaseClient();
+
+    const { data: { user: authUser }, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          role,
+        }
+      }
+    });
+
+    if (authError || !authUser) {
+      console.error('Signup error:', authError?.message);
+      return null;
+    }
+
+    const { error: profileError } = await supabase
+      .from('user_profiles')
+      .update({
+        employee_id: employeeId,
+        department: department,
+      })
+      .eq('id', authUser.id);
+
+    if (profileError) {
+      console.warn('Profile details update error:', profileError.message);
+    }
+
+    const user: User = {
+      id: authUser.id,
+      name,
+      email,
+      role,
+      employeeId,
+      department,
+    };
+
+    await AsyncStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+    return user;
+  } catch (error) {
+    console.error('Signup process failed:', error);
+    return null;
+  }
+}
+
 export async function logout(): Promise<void> {
+  const supabase = getSharedSupabaseClient();
+  await supabase.auth.signOut();
   await AsyncStorage.removeItem(KEYS.CURRENT_USER);
 }
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const userJson = await AsyncStorage.getItem(KEYS.CURRENT_USER);
-    return userJson ? JSON.parse(userJson) : null;
+    const supabase = getSharedSupabaseClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) return null;
+
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile) {
+      const user: User = {
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        role: profile.role,
+        employeeId: profile.employee_id,
+        department: profile.department,
+      };
+      await AsyncStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+      return user;
+    }
+
+    return null;
   } catch (error) {
     console.error('Failed to get current user:', error);
     return null;
@@ -98,8 +150,31 @@ export async function getCurrentUser(): Promise<User | null> {
 
 export async function getComplaints(): Promise<Complaint[]> {
   try {
-    const complaintsJson = await AsyncStorage.getItem(KEYS.COMPLAINTS);
-    return complaintsJson ? JSON.parse(complaintsJson) : [];
+    const supabase = getSharedSupabaseClient();
+    const { data, error } = await supabase
+      .from('complaints')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      location: item.location,
+      priority: item.priority,
+      status: item.status,
+      reporterId: item.reporter_id,
+      reporterName: item.reporter_name,
+      assignedManagerId: item.assigned_manager_id,
+      assignedManagerName: item.assigned_manager_name,
+      imageUrl: item.image_url,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      resolvedAt: item.resolved_at,
+    }));
   } catch (error) {
     console.error('Failed to get complaints:', error);
     return [];
@@ -108,16 +183,30 @@ export async function getComplaints(): Promise<Complaint[]> {
 
 export async function saveComplaint(complaint: Complaint): Promise<void> {
   try {
-    const complaints = await getComplaints();
-    const existingIndex = complaints.findIndex(c => c.id === complaint.id);
-    
-    if (existingIndex >= 0) {
-      complaints[existingIndex] = complaint;
-    } else {
-      complaints.push(complaint);
-    }
-    
-    await AsyncStorage.setItem(KEYS.COMPLAINTS, JSON.stringify(complaints));
+    const supabase = getSharedSupabaseClient();
+    const dbComplaint = {
+      id: complaint.id,
+      title: complaint.title,
+      description: complaint.description,
+      category: complaint.category,
+      location: complaint.location,
+      priority: complaint.priority,
+      status: complaint.status,
+      reporter_id: complaint.reporterId,
+      reporter_name: complaint.reporterName,
+      assigned_manager_id: complaint.assignedManagerId,
+      assigned_manager_name: complaint.assignedManagerName,
+      image_url: complaint.imageUrl,
+      created_at: complaint.createdAt,
+      updated_at: complaint.updatedAt,
+      resolved_at: complaint.resolvedAt,
+    };
+
+    const { error } = await supabase
+      .from('complaints')
+      .upsert(dbComplaint);
+
+    if (error) throw error;
   } catch (error) {
     console.error('Failed to save complaint:', error);
     throw error;
@@ -126,9 +215,24 @@ export async function saveComplaint(complaint: Complaint): Promise<void> {
 
 export async function getComplaintUpdates(complaintId: string): Promise<ComplaintUpdate[]> {
   try {
-    const updatesJson = await AsyncStorage.getItem(KEYS.COMPLAINT_UPDATES);
-    const allUpdates: ComplaintUpdate[] = updatesJson ? JSON.parse(updatesJson) : [];
-    return allUpdates.filter(u => u.complaintId === complaintId);
+    const supabase = getSharedSupabaseClient();
+    const { data, error } = await supabase
+      .from('complaint_updates')
+      .select('*')
+      .eq('complaint_id', complaintId)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    return (data || []).map(item => ({
+      id: item.id,
+      complaintId: item.complaint_id,
+      status: item.status,
+      note: item.note,
+      updatedBy: item.updated_by,
+      updatedByName: item.updated_by_name,
+      createdAt: item.created_at,
+    }));
   } catch (error) {
     console.error('Failed to get complaint updates:', error);
     return [];
@@ -137,10 +241,22 @@ export async function getComplaintUpdates(complaintId: string): Promise<Complain
 
 export async function saveComplaintUpdate(update: ComplaintUpdate): Promise<void> {
   try {
-    const updatesJson = await AsyncStorage.getItem(KEYS.COMPLAINT_UPDATES);
-    const updates: ComplaintUpdate[] = updatesJson ? JSON.parse(updatesJson) : [];
-    updates.push(update);
-    await AsyncStorage.setItem(KEYS.COMPLAINT_UPDATES, JSON.stringify(updates));
+    const supabase = getSharedSupabaseClient();
+    const dbUpdate = {
+      id: update.id,
+      complaint_id: update.complaintId,
+      status: update.status,
+      note: update.note,
+      updated_by: update.updatedBy,
+      updated_by_name: update.updatedByName,
+      created_at: update.createdAt,
+    };
+
+    const { error } = await supabase
+      .from('complaint_updates')
+      .insert(dbUpdate);
+
+    if (error) throw error;
   } catch (error) {
     console.error('Failed to save complaint update:', error);
     throw error;
@@ -149,8 +265,21 @@ export async function saveComplaintUpdate(update: ComplaintUpdate): Promise<void
 
 export async function getAllUsers(): Promise<User[]> {
   try {
-    const usersJson = await AsyncStorage.getItem(KEYS.USERS);
-    return usersJson ? JSON.parse(usersJson) : [];
+    const supabase = getSharedSupabaseClient();
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('*');
+
+    if (error) throw error;
+
+    return (data || []).map(profile => ({
+      id: profile.id,
+      name: profile.name,
+      email: profile.email,
+      role: profile.role,
+      employeeId: profile.employee_id,
+      department: profile.department,
+    }));
   } catch (error) {
     console.error('Failed to get users:', error);
     return [];

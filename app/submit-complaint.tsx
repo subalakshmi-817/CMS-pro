@@ -60,8 +60,8 @@ export default function SubmitComplaintScreen() {
         location,
         priority,
         status: 'pending',
-        studentId: user.id,
-        studentName: user.name,
+        reporterId: user.id,
+        reporterName: user.name,
       });
 
       showAlert('Success', 'Complaint submitted successfully', [

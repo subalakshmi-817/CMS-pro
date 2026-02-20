@@ -18,11 +18,12 @@ export default function DashboardScreen() {
   const stats = useMemo(() => {
     let filtered = complaints;
 
-    if (user?.role === 'student') {
-      filtered = complaints.filter(c => c.studentId === user.id);
-    } else if (user?.role === 'staff') {
-      filtered = complaints.filter(c => c.assignedStaffId === user.id);
+    if (user?.role === 'staff') {
+      filtered = complaints.filter(c => c.reporterId === user.id);
+    } else if (user?.role === 'manager') {
+      filtered = complaints.filter(c => c.assignedManagerId === user.id);
     }
+    // admin sees all
 
     return {
       total: filtered.length,
@@ -32,30 +33,26 @@ export default function DashboardScreen() {
     };
   }, [complaints, user]);
 
-  const handleSubmitComplaint = () => {
-    router.push('/submit-complaint');
-  };
-
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.container, { paddingTop: insets.top }]}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>
-            {user?.role === 'admin' ? 'Admin Dashboard' : 
-             user?.role === 'staff' ? 'My Assigned Tasks' : 
-             'My Dashboard'}
+            {user?.role === 'admin' ? 'Admin Portal' :
+              user?.role === 'manager' ? 'Task Manager' :
+                'Staff Portal'}
           </Text>
           <Text style={styles.userName}>{user?.name}</Text>
         </View>
         <View style={styles.roleContainer}>
-          <MaterialIcons 
-            name={user?.role === 'admin' ? 'admin-panel-settings' : 
-                  user?.role === 'staff' ? 'work' : 'school'} 
-            size={24} 
-            color={theme.colors.primary} 
+          <MaterialIcons
+            name={user?.role === 'admin' ? 'admin-panel-settings' :
+              user?.role === 'manager' ? 'engineering' : 'work'}
+            size={24}
+            color={theme.colors.primary}
           />
         </View>
       </View>
@@ -100,28 +97,32 @@ export default function DashboardScreen() {
         </View>
       </View>
 
-      {user?.role === 'student' && (
+      {user?.role === 'staff' && (
         <View style={styles.actions}>
           <Button
-            title="+ Submit New Complaint"
-            onPress={handleSubmitComplaint}
+            title="+ Raise New Complaint"
+            onPress={() => router.push('/submit-complaint')}
             fullWidth
           />
         </View>
       )}
 
-      {user?.role === 'admin' && (
+      {(user?.role === 'admin' || user?.role === 'manager') && (
         <View style={styles.quickActions}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <Pressable 
+          <Pressable
             style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
             onPress={() => router.push('/(tabs)/complaints')}
           >
             <MaterialIcons name="assignment" size={32} color={theme.colors.primary} />
             <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Manage All Complaints</Text>
+              <Text style={styles.actionTitle}>
+                {user?.role === 'admin' ? 'Review Complaints' : 'View My Tasks'}
+              </Text>
               <Text style={styles.actionDescription}>
-                View, assign, and update complaint status
+                {user?.role === 'admin'
+                  ? 'Assign managers and track progress'
+                  : 'Update status of assigned work'}
               </Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color={theme.colors.textLight} />
@@ -131,11 +132,11 @@ export default function DashboardScreen() {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          {user?.role === 'student' 
-            ? 'Submit complaints and track their progress in real-time'
+          {user?.role === 'staff'
+            ? 'Report issues and monitor their resolution'
             : user?.role === 'admin'
-            ? 'Manage and resolve campus complaints efficiently'
-            : 'View and update your assigned complaints'}
+              ? 'Coordinate campus maintenance and requests'
+              : 'Access and update your assigned tasks and requests'}
         </Text>
       </View>
     </ScrollView>

@@ -39,9 +39,9 @@ export const STATUSES = [
 ];
 
 export const ROLES = {
-  STUDENT: 'student',
-  ADMIN: 'admin',
   STAFF: 'staff',
+  ADMIN: 'admin',
+  MANAGER: 'manager',
 } as const;
 
 export type Role = typeof ROLES[keyof typeof ROLES];

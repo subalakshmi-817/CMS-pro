@@ -9,10 +9,10 @@ import { theme } from '@/constants/theme';
 interface ComplaintCardProps {
   complaint: Complaint;
   onPress: () => void;
-  showStudent?: boolean;
+  showReporter?: boolean;
 }
 
-export function ComplaintCard({ complaint, onPress, showStudent }: ComplaintCardProps) {
+export function ComplaintCard({ complaint, onPress, showReporter }: ComplaintCardProps) {
   const category = COMPLAINT_CATEGORIES.find(c => c.id === complaint.category);
   const timeAgo = getTimeAgo(complaint.createdAt);
 
@@ -46,17 +46,17 @@ export function ComplaintCard({ complaint, onPress, showStudent }: ComplaintCard
         <Text style={styles.metaText}>{timeAgo}</Text>
       </View>
 
-      {showStudent && (
-        <View style={styles.studentInfo}>
+      {showReporter && (
+        <View style={styles.reporterInfo}>
           <MaterialIcons name="person" size={14} color={theme.colors.textSecondary} />
-          <Text style={styles.studentName}>{complaint.studentName}</Text>
+          <Text style={styles.reporterName}>Reported by: {complaint.reporterName}</Text>
         </View>
       )}
 
-      {complaint.assignedStaffName && (
+      {complaint.assignedManagerName && (
         <View style={styles.assignedInfo}>
-          <MaterialIcons name="assignment-ind" size={14} color={theme.colors.info} />
-          <Text style={styles.assignedText}>Assigned to {complaint.assignedStaffName}</Text>
+          <MaterialIcons name="engineering" size={14} color={theme.colors.info} />
+          <Text style={styles.assignedText}>Managed by: {complaint.assignedManagerName}</Text>
         </View>
       )}
 
@@ -136,13 +136,13 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.xs,
     color: theme.colors.textSecondary,
   },
-  studentInfo: {
+  reporterInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     marginBottom: theme.spacing.xs,
   },
-  studentName: {
+  reporterName: {
     fontSize: theme.fontSize.xs,
     color: theme.colors.textSecondary,
     fontWeight: theme.fontWeight.medium,

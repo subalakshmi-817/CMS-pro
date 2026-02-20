@@ -5,7 +5,7 @@ export interface User {
   name: string;
   email: string;
   role: Role;
-  rollNumber?: string;
+  employeeId?: string;
   department?: string;
 }
 
@@ -17,10 +17,10 @@ export interface Complaint {
   location: string;
   priority: ComplaintPriority;
   status: ComplaintStatus;
-  studentId: string;
-  studentName: string;
-  assignedStaffId?: string;
-  assignedStaffName?: string;
+  reporterId: string;
+  reporterName: string;
+  assignedManagerId?: string;
+  assignedManagerName?: string;
   imageUrl?: string;
   createdAt: string;
   updatedAt: string;
