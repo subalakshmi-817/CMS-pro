@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { useComplaints } from '@/hooks/useComplaints';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -101,157 +102,188 @@ export default function ComplaintDetailScreen() {
   const canManage = user?.role === 'admin' || (user?.role === 'manager' && complaint.assignedManagerId === user.id);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={20}>
-          <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Details</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.card}>
-          <View style={styles.topRow}>
-            <View style={styles.categoryBadge}>
-              <MaterialIcons name={category?.icon as any} size={20} color={theme.colors.primary} />
-              <Text style={styles.categoryText}>{category?.label}</Text>
-            </View>
-            <PriorityBadge priority={complaint.priority} />
-          </View>
-
-          <Text style={styles.title}>{complaint.title}</Text>
-          <Text style={styles.description}>{complaint.description}</Text>
-
-          <View style={styles.metaRow}>
-            <View style={styles.metaItem}>
-              <MaterialIcons name="location-on" size={16} color={theme.colors.textSecondary} />
-              <Text style={styles.metaText}>{complaint.location}</Text>
-            </View>
-            <View style={styles.metaItem}>
-              <MaterialIcons name="person" size={16} color={theme.colors.textSecondary} />
-              <Text style={styles.metaText}>{complaint.reporterName}</Text>
-            </View>
-          </View>
-
-          <View style={styles.statusRow}>
-            <StatusBadge status={complaint.status} />
-            <Text style={styles.dateText}>
-              {new Date(complaint.createdAt).toLocaleDateString()}
-            </Text>
-          </View>
+    <LinearGradient
+      colors={[theme.colors.blue, theme.colors.pink]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <View style={{ flex: 1, paddingTop: insets.top }}>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
+          </Pressable>
+          <Text style={styles.headerTitle}>Issue Details</Text>
+          <View style={{ width: 44 }} />
         </View>
 
-        {complaint.assignedManagerName && (
-          <View style={styles.assignmentCard}>
-            <MaterialIcons name="engineering" size={24} color={theme.colors.info} />
-            <View style={styles.assignmentInfo}>
-              <Text style={styles.assignmentLabel}>Assigned Manager</Text>
-              <Text style={styles.assignmentName}>{complaint.assignedManagerName}</Text>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.card}>
+            <View style={styles.topRow}>
+              <View style={styles.categoryBadge}>
+                <MaterialIcons name={category?.icon as any} size={18} color={theme.colors.primary} />
+                <Text style={styles.categoryText}>{category?.label}</Text>
+              </View>
+              <PriorityBadge priority={complaint.priority} />
+            </View>
+
+            <Text style={styles.title}>{complaint.title}</Text>
+            <Text style={styles.description}>{complaint.description}</Text>
+
+            <View style={styles.metaSection}>
+              <View style={styles.metaItem}>
+                <View style={styles.metaIcon}>
+                  <MaterialIcons name="location-on" size={16} color={theme.colors.primary} />
+                </View>
+                <Text style={styles.metaText}>{complaint.location}</Text>
+              </View>
+              <View style={styles.metaItem}>
+                <View style={styles.metaIcon}>
+                  <MaterialIcons name="person" size={16} color={theme.colors.primary} />
+                </View>
+                <Text style={styles.metaText}>By {complaint.reporterName}</Text>
+              </View>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.statusRow}>
+              <StatusBadge status={complaint.status} />
+              <Text style={styles.dateText}>
+                {new Date(complaint.createdAt).toLocaleDateString()}
+              </Text>
             </View>
           </View>
-        )}
 
-        {updates.length > 0 && (
-          <View style={styles.timelineCard}>
-            <Text style={styles.sectionTitle}>Status Timeline</Text>
-            {updates.map((update, index) => (
-              <View key={update.id} style={styles.timelineItem}>
-                <View style={styles.timelineDot} />
-                {index < updates.length - 1 && <View style={styles.timelineLine} />}
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineNote}>{update.note}</Text>
-                  <Text style={styles.timelineMeta}>
-                    By {update.updatedByName} • {new Date(update.createdAt).toLocaleString()}
-                  </Text>
-                </View>
+          {complaint.assignedManagerName && (
+            <View style={styles.assignmentCard}>
+              <View style={styles.assignIconBox}>
+                <MaterialIcons name="engineering" size={24} color={theme.colors.surface} />
               </View>
-            ))}
-          </View>
-        )}
+              <View style={styles.assignmentInfo}>
+                <Text style={styles.assignmentLabel}>Assigned Task Force</Text>
+                <Text style={styles.assignmentName}>{complaint.assignedManagerName}</Text>
+              </View>
+            </View>
+          )}
 
-        {canManage && (
-          <View style={styles.actionsCard}>
-            <Text style={styles.sectionTitle}>Actions</Text>
-
-            {user?.role === 'admin' && !complaint.assignedManagerId && (
-              <>
-                <Button
-                  title="Assign to Manager"
-                  onPress={() => setShowManagerPicker(!showManagerPicker)}
-                  variant="outline"
-                  fullWidth
-                />
-                {showManagerPicker && (
-                  <View style={styles.pickerOptions}>
-                    {managerList.length === 0 ? (
-                      <Text style={styles.emptyText}>No managers available</Text>
-                    ) : (
-                      managerList.map(mgr => (
-                        <Pressable
-                          key={mgr.id}
-                          style={styles.pickerOption}
-                          onPress={() => handleAssignManager(mgr.id, mgr.name)}
-                        >
-                          <Text style={styles.pickerText}>{mgr.name}</Text>
-                          <Text style={styles.pickerSubtext}>{mgr.department}</Text>
-                        </Pressable>
-                      ))
-                    )}
+          {updates.length > 0 && (
+            <View style={styles.timelineSection}>
+              <Text style={styles.sectionTitle}>Activity</Text>
+              <View style={styles.timelineCard}>
+                {updates.map((update, index) => (
+                  <View key={update.id} style={styles.timelineItem}>
+                    <View style={styles.timelineDot} />
+                    {index < updates.length - 1 && <View style={styles.timelineLine} />}
+                    <View style={styles.timelineContent}>
+                      <Text style={styles.timelineNote}>{update.note}</Text>
+                      <Text style={styles.timelineMeta}>
+                        {update.updatedByName} • {new Date(update.createdAt).toLocaleString()}
+                      </Text>
+                    </View>
                   </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {canManage && (
+            <View style={styles.actionsSection}>
+              <Text style={styles.sectionTitle}>Review Actions</Text>
+              <View style={styles.actionsCard}>
+                {user?.role === 'admin' && !complaint.assignedManagerId && (
+                  <>
+                    <Pressable
+                      style={styles.assignSelectionButton}
+                      onPress={() => setShowManagerPicker(!showManagerPicker)}
+                    >
+                      <MaterialIcons name="person-add" size={20} color={theme.colors.primary} />
+                      <Text style={styles.assignSelectionText}>Select Manager</Text>
+                      <MaterialIcons name={showManagerPicker ? "keyboard-arrow-up" : "keyboard-arrow-down"} size={20} color={theme.colors.textLight} />
+                    </Pressable>
+
+                    {showManagerPicker && (
+                      <View style={styles.pickerOptions}>
+                        {managerList.length === 0 ? (
+                          <Text style={styles.emptyText}>Mapping list empty</Text>
+                        ) : (
+                          managerList.map(mgr => (
+                            <Pressable
+                              key={mgr.id}
+                              style={styles.pickerOption}
+                              onPress={() => handleAssignManager(mgr.id, mgr.name)}
+                            >
+                              <View>
+                                <Text style={styles.pickerText}>{mgr.name}</Text>
+                                <Text style={styles.pickerSubtext}>{mgr.department}</Text>
+                              </View>
+                              <MaterialIcons name="add-circle-outline" size={20} color={theme.colors.primary} />
+                            </Pressable>
+                          ))
+                        )}
+                      </View>
+                    )}
+                  </>
                 )}
-              </>
-            )}
 
-            {complaint.status !== 'resolved' && (
-              <>
-                <TextInput
-                  style={styles.noteInput}
-                  placeholder="Add resolution note (required for resolved status)"
-                  value={resolutionNote}
-                  onChangeText={setResolutionNote}
-                  multiline
-                  numberOfLines={3}
-                  placeholderTextColor={theme.colors.textLight}
-                />
-
-                <View style={styles.statusButtons}>
-                  {complaint.status !== 'in_progress' && (
-                    <Button
-                      title="Set as In Progress"
-                      onPress={() => handleStatusChange('in_progress')}
-                      variant="outline"
-                      fullWidth
+                {complaint.status !== 'resolved' && (
+                  <>
+                    <TextInput
+                      style={styles.noteInput}
+                      placeholder="Enter resolution notes..."
+                      value={resolutionNote}
+                      onChangeText={setResolutionNote}
+                      multiline
+                      numberOfLines={3}
+                      placeholderTextColor={theme.colors.textLight}
                     />
-                  )}
-                  <Button
-                    title="Mark as Resolved"
-                    onPress={() => handleStatusChange('resolved')}
-                    fullWidth
-                  />
-                </View>
-              </>
-            )}
-          </View>
-        )}
-      </ScrollView>
-    </View>
+
+                    <View style={styles.statusButtons}>
+                      {complaint.status !== 'in_progress' && (
+                        <Button
+                          title="Start Progress"
+                          onPress={() => handleStatusChange('in_progress')}
+                          variant="outline"
+                          fullWidth
+                          style={styles.outlineButton}
+                        />
+                      )}
+                      <Button
+                        title="Complete Resolution"
+                        onPress={() => handleStatusChange('resolved')}
+                        fullWidth
+                        style={styles.solveButton}
+                      />
+                    </View>
+                  </>
+                )}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: theme.fontSize.lg,
@@ -261,12 +293,17 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: theme.spacing.xl,
+  },
   card: {
     backgroundColor: theme.colors.surface,
-    margin: theme.spacing.lg,
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    ...theme.shadows.md,
+    marginHorizontal: theme.spacing.xl,
+    marginTop: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xxl,
+    ...theme.shadows.lg,
   },
   topRow: {
     flexDirection: 'row',
@@ -277,15 +314,20 @@ const styles = StyleSheet.create({
   categoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+    backgroundColor: 'rgba(157, 157, 255, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.lg,
   },
   categoryText: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
+    fontSize: 10,
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.primary,
+    textTransform: 'uppercase',
   },
   title: {
-    fontSize: theme.fontSize.xl,
+    fontSize: 22,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
     marginBottom: theme.spacing.sm,
@@ -294,22 +336,34 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
     lineHeight: 22,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.xl,
   },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.md,
-    marginBottom: theme.spacing.md,
+  metaSection: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xl,
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 12,
+  },
+  metaIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: theme.colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   metaText: {
     fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
+    color: theme.colors.text,
+    fontWeight: theme.fontWeight.medium,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: theme.colors.divider,
+    marginBottom: theme.spacing.md,
   },
   statusRow: {
     flexDirection: 'row',
@@ -317,119 +371,163 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dateText: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 10,
     color: theme.colors.textLight,
+    fontWeight: 'bold',
   },
   assignmentCard: {
-    backgroundColor: `${theme.colors.info}10`,
-    marginHorizontal: theme.spacing.lg,
+    backgroundColor: theme.colors.primary,
+    marginHorizontal: theme.spacing.xl,
     marginBottom: theme.spacing.lg,
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xl,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.md,
+    ...theme.shadows.md,
+  },
+  assignIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   assignmentInfo: {
     flex: 1,
   },
   assignmentLabel: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: 'bold',
     marginBottom: 2,
   },
   assignmentName: {
     fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.info,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.surface,
+  },
+  timelineSection: {
+    paddingHorizontal: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
   timelineCard: {
-    backgroundColor: theme.colors.surface,
-    marginHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    ...theme.shadows.sm,
+    borderRadius: theme.borderRadius.xxl,
   },
   sectionTitle: {
-    fontSize: theme.fontSize.lg,
+    fontSize: theme.fontSize.sm,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.xs,
   },
   timelineItem: {
     flexDirection: 'row',
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
     position: 'relative',
   },
   timelineDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: theme.colors.primary,
-    marginRight: theme.spacing.md,
-    marginTop: 4,
+    zIndex: 1,
+    marginTop: 6,
+    borderWidth: 2,
+    borderColor: theme.colors.surface,
   },
   timelineLine: {
     position: 'absolute',
-    left: 5,
+    left: 4.5,
     top: 16,
-    width: 2,
+    width: 1,
     height: '100%',
-    backgroundColor: theme.colors.border,
+    backgroundColor: theme.colors.primary,
+    opacity: 0.2,
   },
   timelineContent: {
     flex: 1,
+    marginLeft: theme.spacing.md,
   },
   timelineNote: {
-    fontSize: theme.fontSize.md,
+    fontSize: theme.fontSize.sm,
     color: theme.colors.text,
-    marginBottom: 4,
+    fontWeight: theme.fontWeight.semibold,
+    marginBottom: 2,
   },
   timelineMeta: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textLight,
+    fontSize: 10,
+    color: theme.colors.textSecondary,
+  },
+  actionsSection: {
+    paddingHorizontal: theme.spacing.xl,
   },
   actionsCard: {
     backgroundColor: theme.colors.surface,
-    margin: theme.spacing.lg,
     padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    ...theme.shadows.sm,
+    borderRadius: theme.borderRadius.xxl,
+    ...theme.shadows.md,
     gap: theme.spacing.md,
   },
-  noteInput: {
-    backgroundColor: theme.colors.background,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
+  assignSelectionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     padding: theme.spacing.md,
+    backgroundColor: theme.colors.surfaceDark,
+    borderRadius: theme.borderRadius.lg,
+  },
+  assignSelectionText: {
+    flex: 1,
     fontSize: theme.fontSize.md,
+    fontWeight: theme.fontWeight.medium,
     color: theme.colors.text,
-    minHeight: 80,
+  },
+  noteInput: {
+    backgroundColor: theme.colors.surfaceDark,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.text,
+    minHeight: 100,
     textAlignVertical: 'top',
   },
   statusButtons: {
     gap: theme.spacing.sm,
   },
+  outlineButton: {
+    height: 50,
+    borderRadius: theme.borderRadius.xl,
+    borderColor: theme.colors.primary,
+  },
+  solveButton: {
+    height: 56,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.colors.primary,
+  },
   pickerOptions: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surfaceDark,
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
   },
   pickerOption: {
     padding: theme.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderBottomColor: theme.colors.divider,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   pickerText: {
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
-    fontWeight: theme.fontWeight.medium,
+    fontWeight: theme.fontWeight.bold,
   },
   pickerSubtext: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 10,
     color: theme.colors.textSecondary,
     marginTop: 2,
   },
@@ -438,11 +536,13 @@ const styles = StyleSheet.create({
     color: theme.colors.textLight,
     fontStyle: 'italic',
     textAlign: 'center',
+    fontSize: theme.fontSize.xs,
   },
   errorText: {
     fontSize: theme.fontSize.lg,
     color: theme.colors.error,
     textAlign: 'center',
-    marginTop: theme.spacing.xxl,
+    marginTop: 100,
+    fontWeight: 'bold',
   },
 });

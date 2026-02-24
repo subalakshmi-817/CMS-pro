@@ -110,9 +110,14 @@ export async function signup(
 }
 
 export async function logout(): Promise<void> {
-  const supabase = getSharedSupabaseClient();
-  await supabase.auth.signOut();
-  await AsyncStorage.removeItem(KEYS.CURRENT_USER);
+  try {
+    const supabase = getSharedSupabaseClient();
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.warn('Supabase logout error:', error);
+  } finally {
+    await AsyncStorage.removeItem(KEYS.CURRENT_USER);
+  }
 }
 
 export async function getCurrentUser(): Promise<User | null> {

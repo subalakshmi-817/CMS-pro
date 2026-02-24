@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from 'react-na
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { useComplaints } from '@/hooks/useComplaints';
 import { ComplaintCard } from '@/components/ui/ComplaintCard';
@@ -21,22 +22,16 @@ export default function ComplaintsScreen() {
   const filteredComplaints = useMemo(() => {
     let filtered = complaints;
 
-    // Role-based filtering
     if (user?.role === 'staff') {
-      // Staff see what they reported
       filtered = filtered.filter(c => c.reporterId === user.id);
     } else if (user?.role === 'manager') {
-      // Managers see what's assigned to them
       filtered = filtered.filter(c => c.assignedManagerId === user.id);
     }
-    // Admin sees everything
 
-    // Status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(c => c.status === statusFilter);
     }
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -56,160 +51,170 @@ export default function ComplaintsScreen() {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <MaterialIcons name="assignment-late" size={80} color={theme.colors.textLight} style={styles.emptyIcon} />
-      <Text style={styles.emptyTitle}>No complaints found</Text>
+      <View style={styles.emptyIconContainer}>
+        <MaterialIcons name="assignment-late" size={48} color={theme.colors.textLight} />
+      </View>
+      <Text style={styles.emptyTitle}>No records mapping</Text>
       <Text style={styles.emptyText}>
         {user?.role === 'staff'
-          ? 'You have not submitted any complaints yet'
-          : user?.role === 'manager'
-            ? 'No complaints assigned to you'
-            : 'No complaints in the system'}
+          ? 'Submission is empty'
+          : 'Assignment list is clear'}
       </Text>
     </View>
   );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          {user?.role === 'staff' ? 'My Reported Issues' :
-            user?.role === 'admin' ? 'System Overview' :
-              'Assigned Tasks'}
-        </Text>
-      </View>
+    <LinearGradient
+      colors={[theme.colors.blue, theme.colors.pink]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <View style={{ flex: 1, paddingTop: insets.top }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            {user?.role === 'staff' ? 'Reports' :
+              user?.role === 'admin' ? 'Monitoring' :
+                'Tasks'}
+          </Text>
+        </View>
 
-      <View style={styles.searchContainer}>
-        <MaterialIcons name="search" size={20} color={theme.colors.textLight} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by title, desc or location..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor={theme.colors.textLight}
+        <View style={styles.searchSection}>
+          <View style={styles.searchContainer}>
+            <MaterialIcons name="search" size={20} color={theme.colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Find issues..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor={theme.colors.textLight}
+            />
+          </View>
+        </View>
+
+        <View style={styles.filterSection}>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={['all', ...STATUSES.map(s => s.id)]}
+            renderItem={({ item }) => (
+              <Pressable
+                style={[styles.filterChip, statusFilter === item && styles.filterChipActive]}
+                onPress={() => setStatusFilter(item as ComplaintStatus | 'all')}
+              >
+                <Text style={[styles.filterText, statusFilter === item && styles.filterTextActive]}>
+                  {item === 'all' ? 'All' : STATUSES.find(s => s.id === item)?.label}
+                </Text>
+              </Pressable>
+            )}
+            keyExtractor={item => item}
+            contentContainerStyle={styles.filterList}
+          />
+        </View>
+
+        <FlatList
+          data={filteredComplaints}
+          renderItem={({ item }) => (
+            <ComplaintCard
+              complaint={item}
+              onPress={() => handleComplaintPress(item.id)}
+              showReporter={user?.role !== 'staff'}
+            />
+          )}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={renderEmpty}
+          refreshing={loading}
+          showsVerticalScrollIndicator={false}
         />
       </View>
-
-      <View style={styles.filterContainer}>
-        <Pressable
-          style={[styles.filterChip, statusFilter === 'all' && styles.filterChipActive]}
-          onPress={() => setStatusFilter('all')}
-        >
-          <Text style={[styles.filterText, statusFilter === 'all' && styles.filterTextActive]}>
-            All
-          </Text>
-        </Pressable>
-        {STATUSES.map(status => (
-          <Pressable
-            key={status.id}
-            style={[styles.filterChip, statusFilter === status.id && styles.filterChipActive]}
-            onPress={() => setStatusFilter(status.id as ComplaintStatus)}
-          >
-            <Text style={[styles.filterText, statusFilter === status.id && styles.filterTextActive]}>
-              {status.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <FlatList
-        data={filteredComplaints}
-        renderItem={({ item }) => (
-          <ComplaintCard
-            complaint={item}
-            onPress={() => handleComplaintPress(item.id)}
-            showReporter={user?.role !== 'staff'}
-          />
-        )}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={renderEmpty}
-        refreshing={loading}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   header: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
   },
   title: {
-    fontSize: theme.fontSize.xxl,
+    fontSize: 28,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
+  },
+  searchSection: {
+    paddingHorizontal: theme.spacing.xl,
+    marginBottom: theme.spacing.md,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    marginHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.xl,
+    height: 50,
+    ...theme.shadows.sm,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 12,
     paddingHorizontal: theme.spacing.sm,
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
   },
-  filterContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: theme.spacing.lg,
+  filterSection: {
     marginBottom: theme.spacing.md,
+  },
+  filterList: {
+    paddingHorizontal: theme.spacing.xl,
     gap: theme.spacing.sm,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: theme.borderRadius.full,
-    backgroundColor: theme.colors.surfaceDark,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
   },
   filterChipActive: {
     backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
   },
   filterText: {
     fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.textSecondary,
   },
   filterTextActive: {
     color: theme.colors.surface,
   },
   listContent: {
-    padding: theme.spacing.lg,
-    paddingTop: 0,
+    paddingHorizontal: theme.spacing.xl,
+    paddingBottom: theme.spacing.xl,
+    gap: theme.spacing.md,
   },
   emptyContainer: {
     alignItems: 'center',
-    paddingVertical: theme.spacing.xxl,
+    paddingVertical: 100,
   },
-  emptyIcon: {
-    marginBottom: theme.spacing.lg,
-    opacity: 0.5,
+  emptyIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
   },
   emptyTitle: {
     fontSize: theme.fontSize.xl,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
   },
   emptyText: {
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
     textAlign: 'center',
-    paddingHorizontal: theme.spacing.xl,
   },
 });

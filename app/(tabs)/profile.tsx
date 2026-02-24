@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { theme } from '@/constants/theme';
@@ -21,7 +22,7 @@ export default function ProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           await logout();
-          router.replace('/');
+          router.replace('/login');
         },
       },
     ]);
@@ -33,79 +34,85 @@ export default function ProfileScreen() {
         return theme.colors.admin;
       case 'staff':
         return theme.colors.staff;
-      case 'student':
-        return theme.colors.student;
       default:
         return theme.colors.primary;
     }
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { paddingTop: insets.top }]}
-      showsVerticalScrollIndicator={false}
+    <LinearGradient
+      colors={[theme.colors.blue, theme.colors.pink]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>Profile</Text>
-      </View>
-
-      <View style={styles.profileCard}>
-        <View style={[styles.avatarContainer, { backgroundColor: `${getRoleColor()}20` }]}>
-          <MaterialIcons
-            name={user?.role === 'admin' ? 'admin-panel-settings' : 
-                  user?.role === 'staff' ? 'work' : 'school'}
-            size={48}
-            color={getRoleColor()}
-          />
+      <ScrollView
+        style={{ flex: 1, paddingTop: insets.top }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Account</Text>
         </View>
-        <Text style={styles.name}>{user?.name}</Text>
-        <View style={[styles.roleBadge, { backgroundColor: `${getRoleColor()}20` }]}>
-          <Text style={[styles.roleText, { color: getRoleColor() }]}>
-            {user?.role?.toUpperCase()}
-          </Text>
+
+        <View style={styles.profileSection}>
+          <View style={styles.profileCard}>
+            <View style={[styles.avatarContainer, { backgroundColor: `${getRoleColor()}20` }]}>
+              <MaterialIcons
+                name={user?.role === 'admin' ? 'admin-panel-settings' :
+                  user?.role === 'manager' ? 'engineering' : 'work'}
+                size={48}
+                color={getRoleColor()}
+              />
+            </View>
+            <Text style={styles.name}>{user?.name}</Text>
+            <View style={[styles.roleBadge, { backgroundColor: getRoleColor() }]}>
+              <Text style={styles.roleText}>
+                {user?.role?.toUpperCase()}
+              </Text>
+            </View>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.infoSection}>
-        <InfoItem icon="email" label="Email" value={user?.email || ''} />
-        {user?.department && (
-          <InfoItem icon="business" label="Department" value={user.department} />
-        )}
-        {user?.rollNumber && (
-          <InfoItem icon="badge" label="Roll Number" value={user.rollNumber} />
-        )}
-      </View>
+        <View style={styles.cardSection}>
+          <View style={styles.infoCard}>
+            <InfoItem icon="email" label="Email" value={user?.email || ''} />
+            <View style={styles.divider} />
+            {user?.department && (
+              <InfoItem icon="business" label="Department" value={user.department} />
+            )}
+          </View>
+        </View>
 
-      <View style={styles.menuSection}>
-        <Text style={styles.sectionTitle}>Settings</Text>
-        <MenuItem
-          icon="notifications"
-          title="Notifications"
-          subtitle="Manage notification preferences"
-          onPress={() => showAlert('Coming Soon', 'Notification settings will be available soon')}
-        />
-        <MenuItem
-          icon="help"
-          title="Help & Support"
-          subtitle="Get help and contact support"
-          onPress={() => showAlert('Help', 'For support, contact admin@campus.edu')}
-        />
-        <MenuItem
-          icon="info"
-          title="About"
-          subtitle="App version and information"
-          onPress={() => showAlert('About', 'Smart Campus v1.0.0\nComplaint Management System')}
-        />
-      </View>
+        <View style={styles.menuSection}>
+          <Text style={styles.sectionTitle}>Preferences</Text>
+          <View style={styles.menuCard}>
+            <MenuItem
+              icon="notifications"
+              title="Alerts"
+              onPress={() => showAlert('Coming Soon', 'Settings check is empty')}
+            />
+            <MenuItem
+              icon="help"
+              title="Support"
+              onPress={() => showAlert('Help', 'Contact maintenance team')}
+            />
+            <MenuItem
+              icon="info"
+              title="App Info"
+              isLast
+              onPress={() => showAlert('About', 'Version 1.0.0')}
+            />
+          </View>
+        </View>
 
-      <View style={styles.actions}>
-        <Button title="Logout" onPress={handleLogout} variant="outline" fullWidth />
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Mock Data Mode - Local Storage</Text>
-      </View>
-    </ScrollView>
+        <View style={styles.actions}>
+          <Pressable style={styles.logoutButton} onPress={handleLogout}>
+            <MaterialIcons name="logout" size={20} color={theme.colors.error} />
+            <Text style={styles.logoutText}>Sign Out from Task</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
@@ -113,7 +120,7 @@ function InfoItem({ icon, label, value }: { icon: keyof typeof MaterialIcons.gly
   return (
     <View style={styles.infoItem}>
       <View style={styles.infoIcon}>
-        <MaterialIcons name={icon} size={20} color={theme.colors.primary} />
+        <MaterialIcons name={icon} size={18} color={theme.colors.primary} />
       </View>
       <View style={styles.infoContent}>
         <Text style={styles.infoLabel}>{label}</Text>
@@ -126,27 +133,24 @@ function InfoItem({ icon, label, value }: { icon: keyof typeof MaterialIcons.gly
 function MenuItem({
   icon,
   title,
-  subtitle,
   onPress,
+  isLast,
 }: {
   icon: keyof typeof MaterialIcons.glyphMap;
   title: string;
-  subtitle: string;
   onPress: () => void;
+  isLast?: boolean;
 }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+      style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed, !isLast && styles.menuBorder]}
       onPress={onPress}
     >
       <View style={styles.menuIcon}>
-        <MaterialIcons name={icon} size={24} color={theme.colors.textSecondary} />
+        <MaterialIcons name={icon} size={22} color={theme.colors.textSecondary} />
       </View>
-      <View style={styles.menuContent}>
-        <Text style={styles.menuTitle}>{title}</Text>
-        <Text style={styles.menuSubtitle}>{subtitle}</Text>
-      </View>
-      <MaterialIcons name="chevron-right" size={24} color={theme.colors.textLight} />
+      <Text style={styles.menuTitle}>{title}</Text>
+      <MaterialIcons name="chevron-right" size={20} color={theme.colors.textLight} />
     </Pressable>
   );
 }
@@ -154,55 +158,61 @@ function MenuItem({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   header: {
-    padding: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
   },
   title: {
-    fontSize: theme.fontSize.xxl,
+    fontSize: 28,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
   },
+  profileSection: {
+    paddingHorizontal: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
+  },
   profileCard: {
     backgroundColor: theme.colors.surface,
-    marginHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xxl,
     padding: theme.spacing.xl,
     alignItems: 'center',
-    ...theme.shadows.md,
+    ...theme.shadows.lg,
   },
   avatarContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: theme.borderRadius.full,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: theme.spacing.md,
   },
   name: {
-    fontSize: theme.fontSize.xl,
+    fontSize: 22,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
   },
   roleBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: theme.borderRadius.md,
   },
   roleText: {
-    fontSize: theme.fontSize.sm,
+    fontSize: 10,
     fontWeight: theme.fontWeight.bold,
+    color: theme.colors.surface,
+    letterSpacing: 1,
   },
-  infoSection: {
-    backgroundColor: theme.colors.surface,
-    marginHorizontal: theme.spacing.lg,
+  cardSection: {
+    paddingHorizontal: theme.spacing.xl,
     marginBottom: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
+  },
+  infoCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.xxl,
     padding: theme.spacing.md,
-    ...theme.shadows.sm,
+    ...theme.shadows.md,
   },
   infoItem: {
     flexDirection: 'row',
@@ -210,76 +220,85 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.sm,
   },
   infoIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: `${theme.colors.primary}10`,
+    width: 36,
+    height: 36,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: 'rgba(157, 157, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: theme.spacing.md,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: theme.colors.divider,
+    marginHorizontal: theme.spacing.sm,
   },
   infoContent: {
     flex: 1,
   },
   infoLabel: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 10,
     color: theme.colors.textSecondary,
     marginBottom: 2,
+    fontWeight: 'bold',
   },
   infoValue: {
-    fontSize: theme.fontSize.md,
+    fontSize: theme.fontSize.sm,
     color: theme.colors.text,
-    fontWeight: theme.fontWeight.medium,
+    fontWeight: theme.fontWeight.semibold,
   },
   menuSection: {
-    marginHorizontal: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.xl,
     marginBottom: theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.textSecondary,
+    fontSize: theme.fontSize.sm,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.text,
     marginBottom: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.xs,
+  },
+  menuCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.xxl,
+    padding: theme.spacing.xs,
+    ...theme.shadows.md,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-    ...theme.shadows.sm,
+  },
+  menuBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.divider,
   },
   menuItemPressed: {
     opacity: 0.7,
-    transform: [{ scale: 0.98 }],
   },
   menuIcon: {
     marginRight: theme.spacing.md,
-  },
-  menuContent: {
-    flex: 1,
   },
   menuTitle: {
     fontSize: theme.fontSize.md,
     fontWeight: theme.fontWeight.semibold,
     color: theme.colors.text,
-    marginBottom: 2,
-  },
-  menuSubtitle: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
+    flex: 1,
   },
   actions: {
-    padding: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.xl,
+    paddingBottom: theme.spacing.xl,
   },
-  footer: {
-    padding: theme.spacing.lg,
+  logoutButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 56,
+    backgroundColor: 'rgba(248, 113, 113, 0.1)',
+    borderRadius: theme.borderRadius.xl,
   },
-  footerText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textLight,
+  logoutText: {
+    color: theme.colors.error,
+    fontWeight: theme.fontWeight.bold,
   },
 });

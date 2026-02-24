@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Tou
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -50,111 +51,125 @@ export default function SignupScreen() {
             onPress={() => setRole(type)}
         >
             <View style={[styles.roleIcon, role === type && styles.roleIconActive]}>
-                <MaterialIcons name={icon as any} size={24} color={role === type ? theme.colors.surface : theme.colors.textSecondary} />
+                <MaterialIcons name={icon as any} size={20} color={role === type ? theme.colors.surface : theme.colors.textSecondary} />
             </View>
             <Text style={[styles.roleLabel, role === type && styles.roleLabelActive]}>{label}</Text>
         </TouchableOpacity>
     );
 
     return (
-        <KeyboardAvoidingView
-            style={[styles.container, { paddingTop: insets.top }]}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <LinearGradient
+            colors={[theme.colors.blue, theme.colors.pink]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.container}
         >
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
-                </TouchableOpacity>
-
-                <View style={styles.header}>
-                    <Text style={styles.title}>Create Account</Text>
-                    <Text style={styles.subtitle}>Join the Campus Management Team</Text>
-                </View>
-
-                <View style={styles.roleSelector}>
-                    <Text style={styles.sectionTitle}>Select Your Role</Text>
-                    <View style={styles.roleGrid}>
-                        <RoleOption type="staff" label="Staff" icon="work" />
-                        <RoleOption type="manager" label="Manager" icon="engineering" />
-                        <RoleOption type="admin" label="Admin" icon="admin-panel-settings" />
-                    </View>
-                </View>
-
-                <View style={styles.form}>
-                    <Input
-                        label="Full Name"
-                        value={name}
-                        onChangeText={setName}
-                        placeholder="Enter your full name"
-                    />
-
-                    <Input
-                        label="Email Address"
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Enter your official email"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-
-                    <Input
-                        label="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        placeholder="Create a password"
-                        secureTextEntry
-                    />
-
-                    <Input
-                        label="Employee ID"
-                        value={employeeId}
-                        onChangeText={setEmployeeId}
-                        placeholder="e.g. EMP123"
-                    />
-
-                    <Input
-                        label="Department"
-                        value={department}
-                        onChangeText={setDepartment}
-                        placeholder="e.g. Maintenance, IT, HR"
-                    />
-
-                    <Button
-                        title="Sign Up"
-                        onPress={handleSignup}
-                        loading={loading}
-                        fullWidth
-                        style={styles.signupButton}
-                    />
-                </View>
-
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>Already have an account? </Text>
-                    <TouchableOpacity onPress={() => router.push('/login')}>
-                        <Text style={styles.loginLink}>Login</Text>
+            <KeyboardAvoidingView
+                style={{ flex: 1, paddingTop: insets.top }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                        <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
                     </TouchableOpacity>
-                </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+
+                    <View style={styles.header}>
+                        <Text style={styles.title}>Join Us</Text>
+                        <Text style={styles.subtitle}>Create your staff account today</Text>
+                    </View>
+
+                    <View style={styles.card}>
+                        <View style={styles.roleSelector}>
+                            <Text style={styles.sectionTitle}>Select Role</Text>
+                            <View style={styles.roleGrid}>
+                                <RoleOption type="staff" label="Staff" icon="work" />
+                                <RoleOption type="manager" label="Manager" icon="engineering" />
+                                <RoleOption type="admin" label="Admin" icon="admin-panel-settings" />
+                            </View>
+                        </View>
+
+                        <View style={styles.form}>
+                            <Input
+                                label="Full Name"
+                                value={name}
+                                onChangeText={setName}
+                                placeholder="Full name"
+                            />
+
+                            <Input
+                                label="Email Address"
+                                value={email}
+                                onChangeText={setEmail}
+                                placeholder="Official email"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                            />
+
+                            <Input
+                                label="Password"
+                                value={password}
+                                onChangeText={setPassword}
+                                placeholder="Password"
+                                secureTextEntry
+                            />
+
+                            <View style={styles.row}>
+                                <View style={{ flex: 1 }}>
+                                    <Input
+                                        label="ID"
+                                        value={employeeId}
+                                        onChangeText={setEmployeeId}
+                                        placeholder="EMP123"
+                                    />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Input
+                                        label="Dept"
+                                        value={department}
+                                        onChangeText={setDepartment}
+                                        placeholder="e.g. IT"
+                                    />
+                                </View>
+                            </View>
+
+                            <Button
+                                title="Sign Up"
+                                onPress={handleSignup}
+                                loading={loading}
+                                fullWidth
+                                style={styles.signupButton}
+                            />
+                        </View>
+
+                        <View style={styles.footer}>
+                            <Text style={styles.footerText}>Already have an account? </Text>
+                            <TouchableOpacity onPress={() => router.push('/login')}>
+                                <Text style={styles.loginLink}>Login</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
     },
     scrollContent: {
         padding: theme.spacing.lg,
     },
     backButton: {
-        marginBottom: theme.spacing.lg,
+        marginBottom: theme.spacing.md,
     },
     header: {
         marginBottom: theme.spacing.xl,
+        alignItems: 'center',
     },
     title: {
-        fontSize: theme.fontSize.xxxl,
+        fontSize: 32,
         fontWeight: theme.fontWeight.bold,
         color: theme.colors.text,
     },
@@ -163,49 +178,52 @@ const styles = StyleSheet.create({
         color: theme.colors.textSecondary,
         marginTop: theme.spacing.xs,
     },
+    card: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.xxl,
+        padding: theme.spacing.xl,
+        ...theme.shadows.lg,
+    },
     roleSelector: {
-        marginBottom: theme.spacing.xl,
+        marginBottom: theme.spacing.lg,
     },
     sectionTitle: {
         fontSize: theme.fontSize.sm,
-        fontWeight: theme.fontWeight.semibold,
-        color: theme.colors.textSecondary,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: theme.spacing.md,
+        fontWeight: theme.fontWeight.bold,
+        color: theme.colors.text,
+        marginBottom: theme.spacing.sm,
     },
     roleGrid: {
         flexDirection: 'row',
-        gap: theme.spacing.md,
+        gap: theme.spacing.sm,
     },
     roleOption: {
         flex: 1,
-        backgroundColor: theme.colors.surface,
-        padding: theme.spacing.md,
+        backgroundColor: theme.colors.surfaceDark,
+        padding: theme.spacing.sm,
         borderRadius: theme.borderRadius.md,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: theme.colors.border,
-        ...theme.shadows.sm,
+        borderColor: 'transparent',
     },
     roleOptionActive: {
         borderColor: theme.colors.primary,
         backgroundColor: `${theme.colors.primary}05`,
     },
     roleIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: theme.colors.surfaceDark,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: theme.spacing.sm,
+        marginBottom: theme.spacing.xs,
     },
     roleIconActive: {
         backgroundColor: theme.colors.primary,
     },
     roleLabel: {
-        fontSize: theme.fontSize.xs,
+        fontSize: 10,
         fontWeight: theme.fontWeight.semibold,
         color: theme.colors.textSecondary,
     },
@@ -213,16 +231,22 @@ const styles = StyleSheet.create({
         color: theme.colors.primary,
     },
     form: {
+        gap: theme.spacing.xs,
+    },
+    row: {
+        flexDirection: 'row',
         gap: theme.spacing.sm,
     },
     signupButton: {
         marginTop: theme.spacing.md,
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.borderRadius.xl,
+        height: 56,
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginTop: theme.spacing.xl,
-        marginBottom: theme.spacing.xl,
+        marginTop: theme.spacing.lg,
     },
     footerText: {
         color: theme.colors.textSecondary,

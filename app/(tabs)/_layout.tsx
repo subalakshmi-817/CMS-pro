@@ -17,39 +17,48 @@ export default function TabLayout() {
     return <Redirect href="/" />;
   }
 
-  const tabBarStyle = {
-    height: Platform.select({
-      ios: insets.bottom + 60,
-      android: insets.bottom + 60,
-      default: 70,
-    }),
-    paddingTop: 8,
-    paddingBottom: Platform.select({
-      ios: insets.bottom + 8,
-      android: insets.bottom + 8,
-      default: 8,
-    }),
-    paddingHorizontal: 16,
+  const tabBarStyle: any = {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? insets.bottom + 10 : 20,
+    left: 20,
+    right: 20,
+    height: 64,
+    borderRadius: 20,
     backgroundColor: theme.colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
+    borderTopWidth: 0,
+    paddingBottom: 0,
+    ...Platform.select({
+      ios: theme.shadows.lg,
+      android: theme.shadows.lg,
+      default: theme.shadows.lg,
+    }),
+    elevation: 8,
+    shadowColor: theme.colors.primary,
+    shadowOpacity: 0.1,
+  };
+
+  const commonScreenOptions = {
+    headerShown: false,
+    tabBarStyle,
+    tabBarActiveTintColor: theme.colors.primary,
+    tabBarInactiveTintColor: theme.colors.textLight,
+    tabBarShowLabel: true,
+    tabBarLabelStyle: {
+      fontSize: 10,
+      fontWeight: '900',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: 8,
+    },
+    tabBarIconStyle: {
+      marginTop: 8,
+    }
   };
 
   // Different tabs based on role
   if (user.role === 'admin') {
     return (
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle,
-          tabBarActiveTintColor: theme.colors.primary,
-          tabBarInactiveTintColor: theme.colors.textLight,
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '600',
-          },
-        }}
-      >
+      <Tabs screenOptions={commonScreenOptions as any}>
         <Tabs.Screen
           name="index"
           options={{
@@ -83,18 +92,7 @@ export default function TabLayout() {
 
   if (user.role === 'staff') {
     return (
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle,
-          tabBarActiveTintColor: theme.colors.primary,
-          tabBarInactiveTintColor: theme.colors.textLight,
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '600',
-          },
-        }}
-      >
+      <Tabs screenOptions={commonScreenOptions as any}>
         <Tabs.Screen
           name="index"
           options={{
@@ -125,18 +123,7 @@ export default function TabLayout() {
 
   // Student tabs
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textLight,
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-      }}
-    >
+    <Tabs screenOptions={commonScreenOptions as any}>
       <Tabs.Screen
         name="index"
         options={{
