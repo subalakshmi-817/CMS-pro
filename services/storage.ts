@@ -58,8 +58,7 @@ export async function signup(
   password: string,
   name: string,
   role: Role,
-  employeeId?: string,
-  department?: string
+  department: string
 ): Promise<User | null> {
   try {
     const supabase = getSharedSupabaseClient();
@@ -71,6 +70,7 @@ export async function signup(
         data: {
           name,
           role,
+          department,
         }
       }
     });
@@ -80,10 +80,12 @@ export async function signup(
       return null;
     }
 
+    // The trigger handles profile creation, but we update the department explicitly just in case
+    // though the trigger should handle it if passed in metadata. 
+    // Let's ensure the profile table has the info.
     const { error: profileError } = await supabase
       .from('user_profiles')
       .update({
-        employee_id: employeeId,
         department: department,
       })
       .eq('id', authUser.id);
@@ -97,7 +99,6 @@ export async function signup(
       name,
       email,
       role,
-      employeeId,
       department,
     };
 

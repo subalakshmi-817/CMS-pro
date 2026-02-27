@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/Button';
 import { theme } from '@/constants/theme';
 import { useAlert } from '@/template';
 
@@ -106,10 +105,10 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={styles.logoutButton} onPress={handleLogout}>
-            <MaterialIcons name="logout" size={20} color={theme.colors.error} />
-            <Text style={styles.logoutText}>Sign Out from Task</Text>
-          </Pressable>
+           <Pressable style={styles.logoutButton} onPress={handleLogout}>
+             <MaterialIcons name="logout" size={20} color={theme.colors.error} />
+             <Text style={styles.logoutText}>Sign Out</Text>
+           </Pressable>
         </View>
       </ScrollView>
     </LinearGradient>

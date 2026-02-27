@@ -46,19 +46,24 @@ ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
 ALTER TABLE complaint_updates ENABLE ROW LEVEL SECURITY;
 
 -- Policies for user_profiles
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON user_profiles;
 CREATE POLICY "Public profiles are viewable by everyone" ON user_profiles
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON user_profiles;
 CREATE POLICY "Users can update own profile" ON user_profiles
   FOR UPDATE USING (auth.uid() = id);
 
 -- Policies for complaints
+DROP POLICY IF EXISTS "Everyone can view complaints" ON complaints;
 CREATE POLICY "Everyone can view complaints" ON complaints
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Staff can create complaints" ON complaints;
 CREATE POLICY "Staff can create complaints" ON complaints
   FOR INSERT WITH CHECK (auth.uid() = reporter_id);
 
+DROP POLICY IF EXISTS "Admins and assigned managers can update" ON complaints;
 CREATE POLICY "Admins and assigned managers can update" ON complaints
   FOR UPDATE USING (
     EXISTS (
@@ -68,9 +73,11 @@ CREATE POLICY "Admins and assigned managers can update" ON complaints
   );
 
 -- Policies for updates
+DROP POLICY IF EXISTS "Everyone can view updates" ON complaint_updates;
 CREATE POLICY "Everyone can view updates" ON complaint_updates
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Authorized users can insert updates" ON complaint_updates;
 CREATE POLICY "Authorized users can insert updates" ON complaint_updates
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -95,6 +102,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger to call the function on signup
-CREATE OR REPLACE TRIGGER on_auth_user_created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();

@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, name: string, role: string, employeeId?: string, department?: string) => Promise<boolean>;
+  signup: (email: string, password: string, name: string, role: string, department: string) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -52,11 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     name: string,
     role: string,
-    employeeId?: string,
-    department?: string
+    department: string
   ): Promise<boolean> {
     try {
-      const signedUpUser = await storage.signup(email, password, name, role as any, employeeId, department);
+      const signedUpUser = await storage.signup(email, password, name, role as any, department);
       if (signedUpUser) {
         setUser(signedUpUser);
         return true;
@@ -71,10 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function logout(): Promise<void> {
     try {
       await storage.logout();
+      setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      setUser(null);
     }
   }
 

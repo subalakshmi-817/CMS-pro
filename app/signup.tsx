@@ -17,7 +17,6 @@ export default function SignupScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState<Role>('staff');
-    const [employeeId, setEmployeeId] = useState('');
     const [department, setDepartment] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -27,13 +26,13 @@ export default function SignupScreen() {
     const { showAlert } = useAlert();
 
     const handleSignup = async () => {
-        if (!name || !email || !password || !employeeId || !department) {
+        if (!name || !email || !password || !department) {
             showAlert('Error', 'Please fill in all required fields');
             return;
         }
 
         setLoading(true);
-        const success = await signup(email, password, name, role, employeeId, department);
+        const success = await signup(email, password, name, role, department);
         setLoading(false);
 
         if (success) {
@@ -113,24 +112,12 @@ export default function SignupScreen() {
                                 secureTextEntry
                             />
 
-                            <View style={styles.row}>
-                                <View style={{ flex: 1 }}>
-                                    <Input
-                                        label="ID"
-                                        value={employeeId}
-                                        onChangeText={setEmployeeId}
-                                        placeholder="EMP123"
-                                    />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Input
-                                        label="Dept"
-                                        value={department}
-                                        onChangeText={setDepartment}
-                                        placeholder="e.g. IT"
-                                    />
-                                </View>
-                            </View>
+                            <Input
+                                label="Dept"
+                                value={department}
+                                onChangeText={setDepartment}
+                                placeholder="e.g. IT"
+                            />
 
                             <Button
                                 title="Sign Up"
@@ -232,10 +219,6 @@ const styles = StyleSheet.create({
     },
     form: {
         gap: theme.spacing.xs,
-    },
-    row: {
-        flexDirection: 'row',
-        gap: theme.spacing.sm,
     },
     signupButton: {
         marginTop: theme.spacing.md,
