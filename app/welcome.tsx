@@ -1,10 +1,9 @@
-import { View, Text, StyleSheet, Image, Pressable, Animated } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/constants/theme';
-import { Button } from '@/components/ui/Button';
 import { useEffect, useRef } from 'react';
 
 export default function WelcomeScreen() {
@@ -31,11 +30,19 @@ export default function WelcomeScreen() {
 
     return (
         <LinearGradient
-            colors={[theme.colors.blue, theme.colors.pink]}
+            colors={['#D2D0F5', '#EAE0F5', '#F5E4F8']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.container}
         >
+            <View style={styles.starsContainer}>
+                {/* Galaxy sparkles/stars */}
+                <MaterialIcons name="auto-awesome" size={20} color="#FFFFFF" style={{ position: 'absolute', top: '15%', left: '10%' }} />
+                <MaterialIcons name="star" size={10} color="#FFFFFF" style={{ position: 'absolute', top: '25%', left: '80%' }} />
+                <MaterialIcons name="star" size={14} color="#FFFFFF" style={{ position: 'absolute', top: '45%', left: '15%' }} />
+                <MaterialIcons name="auto-awesome" size={16} color="#FFFFFF" style={{ position: 'absolute', top: '30%', right: '15%' }} />
+            </View>
+
             <View style={[styles.content, { paddingTop: insets.top + 40 }]}>
                 <Animated.View
                     style={[
@@ -43,48 +50,74 @@ export default function WelcomeScreen() {
                         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
                     ]}
                 >
-                    <View style={styles.floatingCard}>
-                        <View style={styles.cardHeader}>
-                            <View style={[styles.dot, { backgroundColor: theme.colors.accent }]} />
-                            <View style={[styles.dot, { backgroundColor: theme.colors.secondary }]} />
-                            <View style={[styles.dot, { backgroundColor: theme.colors.textLight }]} />
+                    <View style={styles.phoneFrame}>
+                        {/* Status bar mock */}
+                        <View style={styles.statusBarMock} />
+
+                        {/* Top Profile Mock */}
+                        <View style={styles.phoneHeader}>
+                            <View style={styles.phoneAvatar} />
+                            <View>
+                                <Text style={styles.phoneName}>Rara <Text style={{ color: '#D1D5DB' }}>•</Text> Beginner</Text>
+                            </View>
+                            <View style={{ flex: 1 }} />
+                            <MaterialIcons name="stars" size={18} color={theme.colors.textSecondary} />
                         </View>
-                        <MaterialIcons name="auto-awesome" size={60} color={theme.colors.accent} />
-                    </View>
-                </Animated.View>
 
-                <Animated.View
-                    style={[
-                        styles.card,
-                        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
-                    ]}
-                >
-                    <Text style={styles.title}>Make campus life easier now</Text>
-                    <Text style={styles.subtitle}>
-                        Quickly report issues and track your complaints with our smart management system
-                    </Text>
+                        <Text style={styles.phoneTitle}>Good morning</Text>
+                        <Text style={styles.phoneSubtitle}>Campus and progress begins</Text>
 
-                    <View style={styles.paginationDots}>
-                        <View style={[styles.paginationDot, styles.paginationDotActive]} />
-                        <View style={styles.paginationDot} />
-                    </View>
+                        <View style={styles.floatingCardLeft}>
+                            <FontAwesome5 name="shapes" size={24} color="#2563EB" />
+                            <Text style={styles.floatingCardText}>Your campus adventure begins</Text>
+                            <View style={styles.progressTrack}>
+                                <View style={[styles.progressBar, { width: '30%', backgroundColor: '#F59E0B' }]} />
+                            </View>
+                            <Text style={styles.progressText}>30%</Text>
+                        </View>
 
-                    <Button
-                        title="Sign In"
-                        onPress={() => router.push('/login')}
-                        fullWidth
-                        size="lg"
-                        style={styles.button}
-                    />
-
-                    <View style={styles.footer}>
-                        <Text style={styles.footerText}>Have'nt an Account? </Text>
-                        <Pressable onPress={() => router.push('/signup')}>
-                            <Text style={styles.signupText}>Sign Up</Text>
-                        </Pressable>
+                        <View style={styles.floatingCardRight}>
+                            <Text style={styles.letters}>A <Text style={{ color: '#3B82F6' }}>B</Text> <Text style={{ color: '#10B981' }}>C</Text></Text>
+                            <Text style={styles.floatingCardText}>Your campus adventure begins</Text>
+                            <View style={styles.progressTrack}>
+                                <View style={[styles.progressBar, { width: '80%', backgroundColor: '#F59E0B' }]} />
+                            </View>
+                            <Text style={styles.progressText}>80%</Text>
+                        </View>
                     </View>
                 </Animated.View>
             </View>
+
+            <Animated.View
+                style={[
+                    styles.card,
+                    { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+                ]}
+            >
+                <Text style={styles.title}>Keep going your{"\n"}learn now</Text>
+                <Text style={styles.subtitle}>
+                    Unlock rewards by staying consistent in your campus journey and claim your reward
+                </Text>
+
+                <View style={styles.paginationDots}>
+                    <View style={[styles.paginationDotActive]} />
+                    <View style={styles.paginationDot} />
+                </View>
+
+                <Pressable
+                    style={styles.button}
+                    onPress={() => router.push('/login')}
+                >
+                    <Text style={styles.buttonText}>Sign In</Text>
+                </Pressable>
+
+                <View style={styles.footer}>
+                    <Text style={styles.footerText}>Have'nt an Account ? </Text>
+                    <Pressable onPress={() => router.push('/signup')}>
+                        <Text style={styles.signupText}>Sign Up</Text>
+                    </Pressable>
+                </View>
+            </Animated.View>
         </LinearGradient>
     );
 }
@@ -93,90 +126,188 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    starsContainer: {
+        ...StyleSheet.absoluteFillObject,
+    },
     content: {
         flex: 1,
-        paddingHorizontal: theme.spacing.xl,
-        justifyContent: 'flex-end',
-        paddingBottom: theme.spacing.xxl,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: -40, // Let phone frame dip behind lower card
     },
     illustrationContainer: {
-        flex: 1,
-        justifyContent: 'center',
+        width: '100%',
         alignItems: 'center',
     },
-    floatingCard: {
-        width: 140,
-        height: 140,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderRadius: theme.borderRadius.xxl,
-        justifyContent: 'center',
-        alignItems: 'center',
+    phoneFrame: {
+        width: 250,
+        height: 400,
+        backgroundColor: '#FCFCFF',
+        borderRadius: 40,
+        borderWidth: 8,
+        borderColor: '#1E1E2D',
+        padding: 16,
+        position: 'relative',
         ...theme.shadows.lg,
     },
-    cardHeader: {
-        flexDirection: 'row',
+    statusBarMock: {
+        width: 80,
+        height: 20,
+        backgroundColor: '#1E1E2D',
+        alignSelf: 'center',
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
         position: 'absolute',
-        top: 20,
-        gap: 6,
+        top: -1,
     },
-    dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
+    phoneHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 20,
+        marginBottom: 16,
+    },
+    phoneAvatar: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: '#E5E7EB',
+        marginRight: 8,
+    },
+    phoneName: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#1E1E2D',
+    },
+    phoneTitle: {
+        fontSize: 20,
+        fontWeight: '800',
+        color: '#1E1E2D',
+        marginTop: 8,
+    },
+    phoneSubtitle: {
+        fontSize: 10,
+        color: '#6B7280',
+        marginBottom: 20,
+    },
+    floatingCardLeft: {
+        position: 'absolute',
+        left: -30,
+        top: 150,
+        width: 120,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 12,
+        transform: [{ rotate: '-8deg' }],
+        ...theme.shadows.md,
+    },
+    floatingCardRight: {
+        position: 'absolute',
+        right: -30,
+        top: 190,
+        width: 120,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 12,
+        transform: [{ rotate: '5deg' }],
+        ...theme.shadows.md,
+    },
+    letters: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#F59E0B',
+        letterSpacing: 2,
+    },
+    floatingCardText: {
+        fontSize: 10,
+        color: '#1E1E2D',
+        fontWeight: '700',
+        marginTop: 8,
+        marginBottom: 8,
+    },
+    progressTrack: {
+        height: 4,
+        backgroundColor: '#F3F4F6',
+        borderRadius: 2,
+        overflow: 'hidden',
+        marginBottom: 4,
+    },
+    progressBar: {
+        height: '100%',
+        borderRadius: 2,
+    },
+    progressText: {
+        fontSize: 10,
+        color: '#9CA3AF',
+        fontWeight: '700',
     },
     card: {
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.xxl,
-        padding: theme.spacing.xl,
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 40,
+        borderTopRightRadius: 40,
+        width: '100%',
+        padding: 30,
+        paddingTop: 40,
+        paddingBottom: 50,
         alignItems: 'center',
         ...theme.shadows.lg,
     },
     title: {
-        fontSize: 32,
-        fontWeight: theme.fontWeight.bold,
-        color: theme.colors.text,
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#1E1E2D',
         textAlign: 'center',
-        lineHeight: 40,
-        marginBottom: theme.spacing.md,
+        lineHeight: 36,
+        marginBottom: 12,
     },
     subtitle: {
-        fontSize: theme.fontSize.md,
-        color: theme.colors.textSecondary,
+        fontSize: 14,
+        color: '#6B7280',
         textAlign: 'center',
-        lineHeight: 24,
-        marginBottom: theme.spacing.xl,
+        lineHeight: 22,
+        marginBottom: 30,
+        paddingHorizontal: 20,
     },
     paginationDots: {
         flexDirection: 'row',
-        gap: 8,
-        marginBottom: theme.spacing.xl,
+        gap: 6,
+        marginBottom: 30,
     },
     paginationDot: {
-        width: 24,
+        width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: theme.colors.surfaceDark,
+        backgroundColor: '#E5E7EB',
     },
     paginationDotActive: {
-        backgroundColor: theme.colors.primary,
-        width: 32,
+        backgroundColor: '#1E1E2D',
+        width: 20,
+        height: 8,
+        borderRadius: 4,
     },
     button: {
-        backgroundColor: theme.colors.primary,
-        borderRadius: theme.borderRadius.xl,
-        height: 60,
+        backgroundColor: '#1E1E2D',
+        borderRadius: 30,
+        height: 56,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
     },
     footer: {
         flexDirection: 'row',
-        marginTop: theme.spacing.lg,
+        marginTop: 20,
     },
     footerText: {
-        fontSize: theme.fontSize.sm,
-        color: theme.colors.textSecondary,
+        fontSize: 14,
+        color: '#6B7280',
     },
     signupText: {
-        fontSize: theme.fontSize.sm,
-        fontWeight: theme.fontWeight.bold,
-        color: theme.colors.text,
+        fontSize: 14,
+        fontWeight: '800',
+        color: '#1E1E2D',
     },
 });
