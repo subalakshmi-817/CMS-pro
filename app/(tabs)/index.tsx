@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { useComplaints } from '@/hooks/useComplaints';
 import { StatCard } from '@/components/ui/StatCard';
@@ -23,7 +24,6 @@ export default function DashboardScreen() {
     } else if (user?.role === 'manager') {
       filtered = complaints.filter(c => c.assignedManagerId === user.id);
     }
-    // admin sees all
 
     return {
       total: filtered.length,
@@ -34,146 +34,166 @@ export default function DashboardScreen() {
   }, [complaints, user]);
 
   return (
-    <ScrollView
-      style={[styles.container, { paddingTop: insets.top }]}
-      showsVerticalScrollIndicator={false}
+    <LinearGradient
+      colors={[theme.colors.blue, theme.colors.pink]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
     >
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>
-            {user?.role === 'admin' ? 'Admin Portal' :
-              user?.role === 'manager' ? 'Task Manager' :
-                'Staff Portal'}
-          </Text>
-          <Text style={styles.userName}>{user?.name}</Text>
-        </View>
-        <View style={styles.roleContainer}>
-          <MaterialIcons
-            name={user?.role === 'admin' ? 'admin-panel-settings' :
-              user?.role === 'manager' ? 'engineering' : 'work'}
-            size={24}
-            color={theme.colors.primary}
-          />
-        </View>
-      </View>
-
-      <View style={styles.statsGrid}>
-        <View style={styles.statRow}>
-          <View style={styles.statItem}>
-            <StatCard
-              title="Total"
-              value={stats.total}
-              icon="assignment"
-              color={theme.colors.primary}
-            />
+      <ScrollView
+        style={{ flex: 1, paddingTop: insets.top }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Welcome Back</Text>
+            <Text style={styles.userName}>{user?.name} ✨</Text>
           </View>
-          <View style={styles.statItem}>
-            <StatCard
-              title="Pending"
-              value={stats.pending}
-              icon="schedule"
-              color={theme.colors.pending}
+          <View style={styles.roleContainer}>
+            <MaterialIcons
+              name={user?.role === 'admin' ? 'admin-panel-settings' :
+                user?.role === 'manager' ? 'engineering' : 'work'}
+              size={24}
+              color={theme.colors.accent}
             />
           </View>
         </View>
 
-        <View style={styles.statRow}>
-          <View style={styles.statItem}>
-            <StatCard
-              title="In Progress"
-              value={stats.inProgress}
-              icon="autorenew"
-              color={theme.colors.inProgress}
-            />
-          </View>
-          <View style={styles.statItem}>
-            <StatCard
-              title="Resolved"
-              value={stats.resolved}
-              icon="check-circle"
-              color={theme.colors.resolved}
-            />
-          </View>
-        </View>
-      </View>
-
-      {user?.role === 'staff' && (
-        <View style={styles.actions}>
-          <Button
-            title="+ Raise New Complaint"
-            onPress={() => router.push('/submit-complaint')}
-            fullWidth
-          />
-        </View>
-      )}
-
-      {(user?.role === 'admin' || user?.role === 'manager') && (
-        <View style={styles.quickActions}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <Pressable
-            style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
-            onPress={() => router.push('/(tabs)/complaints')}
-          >
-            <MaterialIcons name="assignment" size={32} color={theme.colors.primary} />
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>
-                {user?.role === 'admin' ? 'Review Complaints' : 'View My Tasks'}
-              </Text>
-              <Text style={styles.actionDescription}>
-                {user?.role === 'admin'
-                  ? 'Assign managers and track progress'
-                  : 'Update status of assigned work'}
-              </Text>
+        <View style={styles.statsSection}>
+          <Text style={styles.sectionTitle}>Overview</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statRow}>
+              <View style={styles.statItem}>
+                <StatCard
+                  title="Total"
+                  value={stats.total}
+                  icon="assignment"
+                  color={theme.colors.primary}
+                />
+              </View>
+              <View style={styles.statItem}>
+                <StatCard
+                  title="Pending"
+                  value={stats.pending}
+                  icon="schedule"
+                  color={theme.colors.pending}
+                />
+              </View>
             </View>
-            <MaterialIcons name="chevron-right" size={24} color={theme.colors.textLight} />
-          </Pressable>
-        </View>
-      )}
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          {user?.role === 'staff'
-            ? 'Report issues and monitor their resolution'
-            : user?.role === 'admin'
-              ? 'Coordinate campus maintenance and requests'
-              : 'Access and update your assigned tasks and requests'}
-        </Text>
-      </View>
-    </ScrollView>
+            <View style={styles.statRow}>
+              <View style={styles.statItem}>
+                <StatCard
+                  title="Doing"
+                  value={stats.inProgress}
+                  icon="autorenew"
+                  color={theme.colors.inProgress}
+                />
+              </View>
+              <View style={styles.statItem}>
+                <StatCard
+                  title="Done"
+                  value={stats.resolved}
+                  icon="check-circle"
+                  color={theme.colors.resolved}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {user?.role === 'staff' && (
+          <View style={styles.actions}>
+            <Button
+              title="+ New Complaint"
+              onPress={() => router.push('/submit-complaint')}
+              fullWidth
+              style={styles.mainButton}
+            />
+          </View>
+        )}
+
+        {(user?.role === 'admin' || user?.role === 'manager') && (
+          <View style={styles.quickActions}>
+            <Text style={styles.sectionTitle}>Manage</Text>
+            <Pressable
+              style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
+              onPress={() => router.push('/(tabs)/complaints')}
+            >
+              <View style={styles.actionIconContainer}>
+                <MaterialIcons name="assignment" size={24} color={theme.colors.primary} />
+              </View>
+              <View style={styles.actionContent}>
+                <Text style={styles.actionTitle}>
+                  {user?.role === 'admin' ? 'Review Complaints' : 'View My Tasks'}
+                </Text>
+                <Text style={styles.actionDescription}>
+                  {user?.role === 'admin'
+                    ? 'Assign managers and track progress'
+                    : 'Update status of assigned work'}
+                </Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={24} color={theme.colors.textLight} />
+            </Pressable>
+          </View>
+        )}
+
+        <View style={styles.footer}>
+          <View style={styles.infoCard}>
+            <MaterialIcons name="info" size={20} color={theme.colors.secondary} />
+            <Text style={styles.footerText}>
+              {user?.role === 'staff'
+                ? 'Ready to make your campus better today?'
+                : 'Coordinate campus maintenance requests efficiently'}
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: theme.spacing.lg,
+    padding: theme.spacing.xl,
+    paddingTop: theme.spacing.xl,
   },
   greeting: {
-    fontSize: theme.fontSize.md,
+    fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
-    marginBottom: 4,
+    fontWeight: theme.fontWeight.medium,
   },
   userName: {
-    fontSize: theme.fontSize.xxl,
+    fontSize: 28,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
   },
   roleContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: `${theme.colors.primary}15`,
+    width: 50,
+    height: 50,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
+    ...theme.shadows.md,
+  },
+  statsSection: {
+    padding: theme.spacing.xl,
+    paddingTop: 0,
+  },
+  sectionTitle: {
+    fontSize: theme.fontSize.lg,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.md,
   },
   statsGrid: {
-    padding: theme.spacing.lg,
     gap: theme.spacing.md,
   },
   statRow: {
@@ -184,25 +204,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actions: {
-    padding: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
+  },
+  mainButton: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.xl,
+    height: 60,
   },
   quickActions: {
-    padding: theme.spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
+    padding: theme.spacing.xl,
+    paddingTop: 0,
   },
   actionCard: {
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xxl,
     padding: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.md,
-    ...theme.shadows.sm,
+    ...theme.shadows.md,
+  },
+  actionIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(157, 157, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   actionCardPressed: {
     opacity: 0.7,
@@ -213,22 +242,30 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   actionDescription: {
-    fontSize: theme.fontSize.sm,
+    fontSize: theme.fontSize.xs,
     color: theme.colors.textSecondary,
   },
   footer: {
-    padding: theme.spacing.lg,
+    padding: theme.spacing.xl,
     paddingTop: 0,
+    paddingBottom: theme.spacing.xl,
+  },
+  infoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: theme.spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: theme.borderRadius.lg,
+    gap: 10,
   },
   footerText: {
-    fontSize: theme.fontSize.sm,
+    fontSize: theme.fontSize.xs,
     color: theme.colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
+    flex: 1,
   },
 });

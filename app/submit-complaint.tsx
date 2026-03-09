@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pre
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { useComplaints } from '@/hooks/useComplaints';
 import { Input } from '@/components/ui/Input';
@@ -78,203 +79,226 @@ export default function SubmitComplaintScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: insets.top }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <LinearGradient
+      colors={[theme.colors.blue, theme.colors.pink]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
     >
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={20}>
-          <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
-        </Pressable>
-        <Text style={styles.title}>Submit Complaint</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <KeyboardAvoidingView
+        style={{ flex: 1, paddingTop: insets.top }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
+          </Pressable>
+          <Text style={styles.headerTitle}>New Issue</Text>
+          <View style={{ width: 44 }} />
+        </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Input
-          label="Title *"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Brief description of the issue"
-          onBlur={analyzeWithAI}
-        />
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.card}>
+            <Input
+              label="Issue Title"
+              value={title}
+              onChangeText={setTitle}
+              placeholder="What is the problem?"
+              onBlur={analyzeWithAI}
+            />
 
-        <Input
-          label="Description *"
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Provide detailed information about the complaint"
-          multiline
-          numberOfLines={4}
-          style={{ minHeight: 100, textAlignVertical: 'top' }}
-          onBlur={analyzeWithAI}
-        />
+            <Input
+              label="Details"
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Provide details for our task team..."
+              multiline
+              numberOfLines={4}
+              style={{ minHeight: 120, textAlignVertical: 'top' }}
+              onBlur={analyzeWithAI}
+            />
 
-        {aiSuggestion && (
-          <View style={styles.aiSuggestion}>
-            <MaterialIcons name="auto-awesome" size={16} color={theme.colors.primary} />
-            <Text style={styles.aiText}>{aiSuggestion}</Text>
+            {aiSuggestion && (
+              <View style={styles.aiSuggestion}>
+                <MaterialIcons name="auto-awesome" size={16} color={theme.colors.accent} />
+                <Text style={styles.aiText}>{aiSuggestion}</Text>
+              </View>
+            )}
           </View>
-        )}
 
-        <View style={styles.pickerContainer}>
-          <Text style={styles.label}>Category</Text>
-          <Pressable
-            style={styles.picker}
-            onPress={() => setShowCategoryPicker(!showCategoryPicker)}
-          >
-            <View style={styles.pickerValue}>
-              <MaterialIcons
-                name={COMPLAINT_CATEGORIES.find(c => c.id === category)?.icon as any}
-                size={20}
-                color={theme.colors.text}
-              />
-              <Text style={styles.pickerText}>
-                {COMPLAINT_CATEGORIES.find(c => c.id === category)?.label}
-              </Text>
-            </View>
-            <MaterialIcons name="arrow-drop-down" size={24} color={theme.colors.textLight} />
-          </Pressable>
-          {showCategoryPicker && (
-            <View style={styles.pickerOptions}>
-              {COMPLAINT_CATEGORIES.map(cat => (
-                <Pressable
-                  key={cat.id}
-                  style={styles.pickerOption}
-                  onPress={() => {
-                    setCategory(cat.id as ComplaintCategory);
-                    setShowCategoryPicker(false);
-                  }}
-                >
-                  <MaterialIcons name={cat.icon as any} size={20} color={theme.colors.text} />
-                  <Text style={styles.pickerOptionText}>{cat.label}</Text>
-                  {category === cat.id && (
-                    <MaterialIcons name="check" size={20} color={theme.colors.primary} />
-                  )}
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.pickerContainer}>
-          <Text style={styles.label}>Location</Text>
-          <Pressable
-            style={styles.picker}
-            onPress={() => setShowLocationPicker(!showLocationPicker)}
-          >
-            <View style={styles.pickerValue}>
-              <MaterialIcons name="location-on" size={20} color={theme.colors.text} />
-              <Text style={styles.pickerText}>{location}</Text>
-            </View>
-            <MaterialIcons name="arrow-drop-down" size={24} color={theme.colors.textLight} />
-          </Pressable>
-          {showLocationPicker && (
-            <View style={styles.pickerOptions}>
-              {LOCATIONS.map(loc => (
-                <Pressable
-                  key={loc}
-                  style={styles.pickerOption}
-                  onPress={() => {
-                    setLocation(loc);
-                    setShowLocationPicker(false);
-                  }}
-                >
-                  <Text style={styles.pickerOptionText}>{loc}</Text>
-                  {location === loc && (
-                    <MaterialIcons name="check" size={20} color={theme.colors.primary} />
-                  )}
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.priorityContainer}>
-          <Text style={styles.label}>Priority</Text>
-          <View style={styles.priorityOptions}>
-            {(['low', 'medium', 'high'] as ComplaintPriority[]).map(p => (
+          <View style={styles.card}>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.label}>Category</Text>
               <Pressable
-                key={p}
-                style={[
-                  styles.priorityChip,
-                  priority === p && styles.priorityChipActive,
-                  p === 'low' && { borderColor: theme.colors.resolved },
-                  p === 'medium' && { borderColor: theme.colors.pending },
-                  p === 'high' && { borderColor: theme.colors.error },
-                  priority === p && p === 'low' && { backgroundColor: `${theme.colors.resolved}20` },
-                  priority === p && p === 'medium' && { backgroundColor: `${theme.colors.pending}20` },
-                  priority === p && p === 'high' && { backgroundColor: `${theme.colors.error}20` },
-                ]}
-                onPress={() => setPriority(p)}
+                style={styles.picker}
+                onPress={() => setShowCategoryPicker(!showCategoryPicker)}
               >
-                <Text
-                  style={[
-                    styles.priorityText,
-                    p === 'low' && { color: theme.colors.resolved },
-                    p === 'medium' && { color: theme.colors.pending },
-                    p === 'high' && { color: theme.colors.error },
-                  ]}
-                >
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
-                </Text>
+                <View style={styles.pickerValue}>
+                  <MaterialIcons
+                    name={COMPLAINT_CATEGORIES.find(c => c.id === category)?.icon as any}
+                    size={20}
+                    color={theme.colors.primary}
+                  />
+                  <Text style={styles.pickerText}>
+                    {COMPLAINT_CATEGORIES.find(c => c.id === category)?.label}
+                  </Text>
+                </View>
+                <MaterialIcons name="arrow-drop-down" size={24} color={theme.colors.textLight} />
               </Pressable>
-            ))}
-          </View>
-        </View>
+              {showCategoryPicker && (
+                <View style={styles.pickerOptions}>
+                  {COMPLAINT_CATEGORIES.map(cat => (
+                    <Pressable
+                      key={cat.id}
+                      style={styles.pickerOption}
+                      onPress={() => {
+                        setCategory(cat.id as ComplaintCategory);
+                        setShowCategoryPicker(false);
+                      }}
+                    >
+                      <MaterialIcons name={cat.icon as any} size={20} color={theme.colors.textSecondary} />
+                      <Text style={styles.pickerOptionText}>{cat.label}</Text>
+                      {category === cat.id && (
+                        <MaterialIcons name="check" size={20} color={theme.colors.primary} />
+                      )}
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </View>
 
-        <View style={styles.actions}>
-          <Button title="Submit Complaint" onPress={handleSubmit} loading={submitting} fullWidth />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.label}>Location</Text>
+              <Pressable
+                style={styles.picker}
+                onPress={() => setShowLocationPicker(!showLocationPicker)}
+              >
+                <View style={styles.pickerValue}>
+                  <MaterialIcons name="location-on" size={20} color={theme.colors.primary} />
+                  <Text style={styles.pickerText}>{location}</Text>
+                </View>
+                <MaterialIcons name="arrow-drop-down" size={24} color={theme.colors.textLight} />
+              </Pressable>
+              {showLocationPicker && (
+                <View style={styles.pickerOptions}>
+                  {LOCATIONS.map(loc => (
+                    <Pressable
+                      key={loc}
+                      style={styles.pickerOption}
+                      onPress={() => {
+                        setLocation(loc);
+                        setShowLocationPicker(false);
+                      }}
+                    >
+                      <Text style={styles.pickerOptionText}>{loc}</Text>
+                      {location === loc && (
+                        <MaterialIcons name="check" size={20} color={theme.colors.primary} />
+                      )}
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.prioritySection}>
+            <Text style={styles.label}>Urgency</Text>
+            <View style={styles.priorityOptions}>
+              {(['low', 'medium', 'high'] as ComplaintPriority[]).map(p => (
+                <Pressable
+                  key={p}
+                  style={[
+                    styles.priorityChip,
+                    priority === p && styles.priorityChipActive,
+                  ]}
+                  onPress={() => setPriority(p)}
+                >
+                  <Text
+                    style={[
+                      styles.priorityText,
+                      priority === p && styles.priorityTextActive,
+                    ]}
+                  >
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.actions}>
+            <Button
+              title="Send for Review"
+              onPress={handleSubmit}
+              loading={submitting}
+              fullWidth
+              style={styles.submitButton}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
   },
-  title: {
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
     fontSize: theme.fontSize.lg,
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    padding: theme.spacing.xl,
+    gap: theme.spacing.lg,
+  },
+  card: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.xxl,
     padding: theme.spacing.lg,
+    ...theme.shadows.md,
   },
   aiSuggestion: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: `${theme.colors.primary}10`,
-    padding: theme.spacing.md,
+    backgroundColor: 'rgba(255, 157, 66, 0.1)',
+    padding: theme.spacing.sm,
     borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.sm,
     gap: 8,
   },
   aiText: {
     flex: 1,
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.primary,
-    fontWeight: theme.fontWeight.medium,
+    fontSize: 10,
+    color: theme.colors.accent,
+    fontWeight: theme.fontWeight.bold,
   },
   pickerContainer: {
     marginBottom: theme.spacing.md,
   },
   label: {
     fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
     marginBottom: theme.spacing.sm,
   },
@@ -282,45 +306,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1.5,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.surfaceDark,
+    borderRadius: theme.borderRadius.lg,
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   pickerValue: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   pickerText: {
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
+    fontWeight: theme.fontWeight.medium,
   },
   pickerOptions: {
     backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.xl,
     marginTop: theme.spacing.sm,
-    ...theme.shadows.md,
+    ...theme.shadows.lg,
+    overflow: 'hidden',
   },
   pickerOption: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: theme.spacing.md,
-    gap: 8,
+    gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    borderBottomColor: theme.colors.divider,
   },
   pickerOptionText: {
     flex: 1,
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
   },
-  priorityContainer: {
-    marginBottom: theme.spacing.lg,
+  prioritySection: {
+    paddingHorizontal: theme.spacing.xs,
   },
   priorityOptions: {
     flexDirection: 'row',
@@ -328,20 +350,29 @@ const styles = StyleSheet.create({
   },
   priorityChip: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 2,
+    paddingVertical: 14,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
     alignItems: 'center',
   },
   priorityChipActive: {
-    borderWidth: 2,
+    backgroundColor: theme.colors.primary,
   },
   priorityText: {
     fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
+    fontWeight: theme.fontWeight.bold,
+    color: theme.colors.textSecondary,
+  },
+  priorityTextActive: {
+    color: theme.colors.surface,
   },
   actions: {
-    marginBottom: theme.spacing.xl,
+    marginTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
+  },
+  submitButton: {
+    height: 60,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.colors.primary,
   },
 });

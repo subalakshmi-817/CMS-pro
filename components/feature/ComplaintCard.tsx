@@ -23,7 +23,9 @@ export function ComplaintCard({ complaint, onPress, showReporter }: ComplaintCar
     >
       <View style={styles.header}>
         <View style={styles.categoryContainer}>
-          <MaterialIcons name={category?.icon as any || 'help'} size={20} color={theme.colors.primary} />
+          <View style={styles.iconContainer}>
+            <MaterialIcons name={category?.icon as any || 'help'} size={18} color={theme.colors.primary} />
+          </View>
           <Text style={styles.category}>{category?.label || 'Others'}</Text>
         </View>
         <PriorityBadge priority={complaint.priority} size="small" />
@@ -37,32 +39,36 @@ export function ComplaintCard({ complaint, onPress, showReporter }: ComplaintCar
         {complaint.description}
       </Text>
 
-      <View style={styles.meta}>
-        <View style={styles.metaItem}>
-          <MaterialIcons name="location-on" size={14} color={theme.colors.textSecondary} />
-          <Text style={styles.metaText}>{complaint.location}</Text>
-        </View>
-        <Text style={styles.metaText}>•</Text>
-        <Text style={styles.metaText}>{timeAgo}</Text>
-      </View>
-
-      {showReporter && (
-        <View style={styles.reporterInfo}>
-          <MaterialIcons name="person" size={14} color={theme.colors.textSecondary} />
-          <Text style={styles.reporterName}>Reported by: {complaint.reporterName}</Text>
-        </View>
-      )}
-
-      {complaint.assignedManagerName && (
-        <View style={styles.assignedInfo}>
-          <MaterialIcons name="engineering" size={14} color={theme.colors.info} />
-          <Text style={styles.assignedText}>Managed by: {complaint.assignedManagerName}</Text>
-        </View>
-      )}
+      <View style={styles.divider} />
 
       <View style={styles.footer}>
+        <View style={styles.meta}>
+          <View style={styles.metaItem}>
+            <MaterialIcons name="location-on" size={14} color={theme.colors.textSecondary} />
+            <Text style={styles.metaText}>{complaint.location}</Text>
+          </View>
+          <Text style={styles.dot}>•</Text>
+          <Text style={styles.metaText}>{timeAgo}</Text>
+        </View>
         <StatusBadge status={complaint.status} size="small" />
       </View>
+
+      {(showReporter || complaint.assignedManagerName) && (
+        <View style={styles.peopleSection}>
+          {showReporter && (
+            <View style={styles.personItem}>
+              <MaterialIcons name="person-outline" size={14} color={theme.colors.textLight} />
+              <Text style={styles.personText}>{complaint.reporterName}</Text>
+            </View>
+          )}
+          {complaint.assignedManagerName && (
+            <View style={styles.personItem}>
+              <MaterialIcons name="engineering" size={14} color={theme.colors.accent} />
+              <Text style={[styles.personText, { color: theme.colors.accent }]}>{complaint.assignedManagerName}</Text>
+            </View>
+          )}
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -84,48 +90,66 @@ function getTimeAgo(dateString: string): string {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    ...theme.shadows.sm,
+    borderRadius: theme.borderRadius.xxl,
+    padding: theme.spacing.lg,
+    ...theme.shadows.md,
   },
   cardPressed: {
-    opacity: 0.7,
+    opacity: 0.9,
     transform: [{ scale: 0.98 }],
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
   },
   categoryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(157, 157, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   category: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
+    fontSize: 10,
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   title: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.semibold,
+    fontSize: theme.fontSize.lg,
+    fontWeight: theme.fontWeight.bold,
     color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
+    marginBottom: 6,
   },
   description: {
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
     lineHeight: 20,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: theme.colors.divider,
+    marginBottom: theme.spacing.md,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   meta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: theme.spacing.sm,
   },
   metaItem: {
     flexDirection: 'row',
@@ -133,32 +157,31 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   metaText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-  },
-  reporterInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: theme.spacing.xs,
-  },
-  reporterName: {
-    fontSize: theme.fontSize.xs,
+    fontSize: 10,
     color: theme.colors.textSecondary,
     fontWeight: theme.fontWeight.medium,
   },
-  assignedInfo: {
+  dot: {
+    fontSize: 10,
+    color: theme.colors.textLight,
+  },
+  peopleSection: {
+    flexDirection: 'row',
+    marginTop: theme.spacing.md,
+    gap: theme.spacing.md,
+    paddingTop: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.divider,
+    borderStyle: 'dashed',
+  },
+  personItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: theme.spacing.xs,
   },
-  assignedText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.info,
+  personText: {
+    fontSize: 10,
+    color: theme.colors.textSecondary,
     fontWeight: theme.fontWeight.medium,
-  },
-  footer: {
-    marginTop: theme.spacing.xs,
   },
 });
