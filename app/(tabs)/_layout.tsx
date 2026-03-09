@@ -14,7 +14,7 @@ export default function TabLayout() {
   }
 
   if (!user) {
-    return <Redirect href="/" />;
+    return <Redirect href="/welcome" />;
   }
 
   const tabBarStyle = {

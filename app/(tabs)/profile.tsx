@@ -21,7 +21,6 @@ export default function ProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           await logout();
-          router.replace('/');
         },
       },
     ]);
@@ -33,8 +32,8 @@ export default function ProfileScreen() {
         return theme.colors.admin;
       case 'staff':
         return theme.colors.staff;
-      case 'student':
-        return theme.colors.student;
+      case 'manager':
+        return theme.colors.manager;
       default:
         return theme.colors.primary;
     }
@@ -52,8 +51,8 @@ export default function ProfileScreen() {
       <View style={styles.profileCard}>
         <View style={[styles.avatarContainer, { backgroundColor: `${getRoleColor()}20` }]}>
           <MaterialIcons
-            name={user?.role === 'admin' ? 'admin-panel-settings' : 
-                  user?.role === 'staff' ? 'work' : 'school'}
+            name={user?.role === 'admin' ? 'admin-panel-settings' :
+              user?.role === 'manager' ? 'engineering' : 'work'}
             size={48}
             color={getRoleColor()}
           />
@@ -71,8 +70,8 @@ export default function ProfileScreen() {
         {user?.department && (
           <InfoItem icon="business" label="Department" value={user.department} />
         )}
-        {user?.rollNumber && (
-          <InfoItem icon="badge" label="Roll Number" value={user.rollNumber} />
+        {user?.employeeId && (
+          <InfoItem icon="badge" label="Employee ID" value={user.employeeId} />
         )}
       </View>
 

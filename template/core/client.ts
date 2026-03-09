@@ -50,6 +50,7 @@ class SupabaseManager {
           persistSession: true,
           detectSessionInUrl: Platform.OS === 'web',
           flowType: 'pkce',
+          lockClient: false,
         },
       });
 
