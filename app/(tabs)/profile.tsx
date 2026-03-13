@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { theme } from '@/constants/theme';
 import { useAlert } from '@/template';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -47,6 +48,7 @@ export default function ProfileScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
+      <DecorativeElements />
       <ScrollView
         style={{ flex: 1, paddingTop: insets.top }}
         showsVerticalScrollIndicator={false}

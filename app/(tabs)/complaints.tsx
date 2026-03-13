@@ -9,6 +9,7 @@ import { useComplaints } from '@/hooks/useComplaints';
 import { ComplaintCard } from '@/components/ui/ComplaintCard';
 import { theme } from '@/constants/theme';
 import { ComplaintStatus, STATUSES } from '@/constants/config';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 
 export default function ComplaintsScreen() {
   const { user } = useAuth();
@@ -70,6 +71,7 @@ export default function ComplaintsScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
+      <DecorativeElements />
       <View style={{ flex: 1, paddingTop: insets.top }}>
         <View style={styles.header}>
           <Text style={styles.title}>

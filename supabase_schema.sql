@@ -90,12 +90,13 @@ CREATE POLICY "Authorized users can insert updates" ON complaint_updates
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.user_profiles (id, name, email, role)
+  INSERT INTO public.user_profiles (id, name, email, role, department)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'name', NEW.email),
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'role', 'staff')
+    COALESCE(NEW.raw_user_meta_data->>'role', 'staff'),
+    NEW.raw_user_meta_data->>'department'
   );
   RETURN NEW;
 END;

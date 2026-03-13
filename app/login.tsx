@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { theme } from '@/constants/theme';
 import { useAlert } from '@/template';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -44,6 +45,7 @@ export default function LoginScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
+      <DecorativeElements />
       <KeyboardAvoidingView
         style={{ flex: 1, paddingTop: insets.top }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

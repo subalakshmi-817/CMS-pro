@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { theme } from '@/constants/theme';
 import { useAlert } from '@/template';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 
 type Role = 'staff' | 'admin' | 'manager';
 
@@ -32,15 +33,15 @@ export default function SignupScreen() {
         }
 
         setLoading(true);
-        const success = await signup(email, password, name, role, department);
+        const { success, message } = await signup(email, password, name, role, department);
         setLoading(false);
 
         if (success) {
-            showAlert('Success', 'Account created successfully!', [
+            showAlert('Success', message || 'Account created successfully!', [
                 { text: 'OK', onPress: () => router.replace('/(tabs)') }
             ]);
         } else {
-            showAlert('Signup Failed', 'Could not create account. Please try again.');
+            showAlert('Signup Failed', message || 'Could not create account. Please try again.');
         }
     };
 
@@ -63,6 +64,7 @@ export default function SignupScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.container}
         >
+            <DecorativeElements />
             <KeyboardAvoidingView
                 style={{ flex: 1, paddingTop: insets.top }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

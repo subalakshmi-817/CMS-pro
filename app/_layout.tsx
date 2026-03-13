@@ -5,6 +5,8 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ComplaintProvider } from '@/contexts/ComplaintContext';
 import { StatusBar } from 'expo-status-bar';
 
+export { ErrorBoundary } from 'expo-router';
+
 export default function RootLayout() {
   return (
     <AlertProvider>

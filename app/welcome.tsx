@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/constants/theme';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 import { useEffect, useRef } from 'react';
 
 export default function WelcomeScreen() {
@@ -18,12 +19,12 @@ export default function WelcomeScreen() {
             Animated.timing(fadeAnim, {
                 toValue: 1,
                 duration: 800,
-                useNativeDriver: true,
+                useNativeDriver: false,
             }),
             Animated.timing(slideAnim, {
                 toValue: 0,
                 duration: 800,
-                useNativeDriver: true,
+                useNativeDriver: false,
             }),
         ]).start();
     }, []);
@@ -35,14 +36,7 @@ export default function WelcomeScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.container}
         >
-            <View style={styles.starsContainer}>
-                {/* Galaxy sparkles/stars */}
-                <MaterialIcons name="auto-awesome" size={20} color="#FFFFFF" style={{ position: 'absolute', top: '15%', left: '10%' }} />
-                <MaterialIcons name="star" size={10} color="#FFFFFF" style={{ position: 'absolute', top: '25%', left: '80%' }} />
-                <MaterialIcons name="star" size={14} color="#FFFFFF" style={{ position: 'absolute', top: '45%', left: '15%' }} />
-                <MaterialIcons name="auto-awesome" size={16} color="#FFFFFF" style={{ position: 'absolute', top: '30%', right: '15%' }} />
-            </View>
-
+            <DecorativeElements />
             <View style={[styles.content, { paddingTop: insets.top + 40 }]}>
                 <Animated.View
                     style={[

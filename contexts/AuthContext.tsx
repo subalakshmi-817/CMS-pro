@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, name: string, role: string, department: string) => Promise<boolean>;
+  signup: (email: string, password: string, name: string, role: string, department: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -53,17 +53,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     name: string,
     role: string,
     department: string
-  ): Promise<boolean> {
+  ): Promise<{ success: boolean; message?: string }> {
     try {
-      const signedUpUser = await storage.signup(email, password, name, role as any, department);
+      const { user: signedUpUser, error } = await storage.signup(email, password, name, role as any, department);
       if (signedUpUser) {
+        // If we have a user but also an error message (like confirmation sent), 
+        // we might still consider it "success" but with a message
+        if (error && !error.includes('Confirmation')) {
+           return { success: false, message: error };
+        }
+        
         setUser(signedUpUser);
-        return true;
+        return { success: true, message: error };
       }
-      return false;
-    } catch (error) {
+      return { success: false, message: error || 'Signup failed' };
+    } catch (error: any) {
       console.error('Signup error:', error);
-      return false;
+      return { success: false, message: error.message || 'An unexpected error occurred' };
     }
   }
 

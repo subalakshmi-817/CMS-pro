@@ -13,6 +13,7 @@ import { COMPLAINT_CATEGORIES, LOCATIONS } from '@/constants/config';
 import { categorizeComplaint } from '@/services/aiCategorization';
 import { useAlert } from '@/template';
 import { ComplaintCategory, ComplaintPriority } from '@/constants/config';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 
 export default function SubmitComplaintScreen() {
   const { user } = useAuth();
@@ -85,6 +86,7 @@ export default function SubmitComplaintScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
+      <DecorativeElements />
       <KeyboardAvoidingView
         style={{ flex: 1, paddingTop: insets.top }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

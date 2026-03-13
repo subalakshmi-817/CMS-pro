@@ -59,11 +59,11 @@ export async function signup(
   name: string,
   role: Role,
   department: string
-): Promise<User | null> {
+): Promise<{ user: User | null; error?: string }> {
   try {
     const supabase = getSharedSupabaseClient();
 
-    const { data: { user: authUser }, error: authError } = await supabase.auth.signUp({
+    const { data: { user: authUser, session }, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -75,23 +75,29 @@ export async function signup(
       }
     });
 
-    if (authError || !authUser) {
-      console.error('Signup error:', authError?.message);
-      return null;
+    if (authError) {
+      console.error('Signup error:', authError.message);
+      return { user: null, error: authError.message };
     }
 
-    // The trigger handles profile creation, but we update the department explicitly just in case
-    // though the trigger should handle it if passed in metadata. 
-    // Let's ensure the profile table has the info.
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .update({
-        department: department,
-      })
-      .eq('id', authUser.id);
+    if (!authUser) {
+      return { user: null, error: 'User could not be created' };
+    }
 
-    if (profileError) {
-      console.warn('Profile details update error:', profileError.message);
+    // Try to ensure the profile has the department. 
+    // This might fail if email confirmation is required (session will be null), 
+    // but the trigger already creates the base profile.
+    if (session) {
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          department: department,
+        })
+        .eq('id', authUser.id);
+
+      if (profileError) {
+        console.warn('Profile details update error:', profileError.message);
+      }
     }
 
     const user: User = {
@@ -102,11 +108,16 @@ export async function signup(
       department,
     };
 
-    await AsyncStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
-    return user;
-  } catch (error) {
+    // Only save to local storage if we have a session (user is fully signed in)
+    // or if we want to allow offline access to "unconfirmed" users (not recommended)
+    if (session) {
+      await AsyncStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+    }
+
+    return { user, error: session ? undefined : 'Confirmation email sent. Please check your inbox.' };
+  } catch (error: any) {
     console.error('Signup process failed:', error);
-    return null;
+    return { user: null, error: error.message || 'An unexpected error occurred' };
   }
 }
 

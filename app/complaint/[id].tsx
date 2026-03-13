@@ -14,6 +14,7 @@ import { COMPLAINT_CATEGORIES, ComplaintStatus } from '@/constants/config';
 import { useAlert } from '@/template';
 import { ComplaintUpdate } from '@/types';
 import * as storage from '@/services/storage';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 
 export default function ComplaintDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -108,6 +109,7 @@ export default function ComplaintDetailScreen() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
+      <DecorativeElements />
       <View style={{ flex: 1, paddingTop: insets.top }}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backButton}>

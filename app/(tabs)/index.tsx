@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useComplaints } from '@/hooks/useComplaints';
 import { theme } from '@/constants/theme';
 import { useMemo } from 'react';
+import { DecorativeElements } from '@/components/ui/DecorativeElements';
 
 export default function DashboardScreen() {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      <DecorativeElements />
       <ScrollView
         style={{ flex: 1, paddingTop: insets.top }}
         showsVerticalScrollIndicator={false}
