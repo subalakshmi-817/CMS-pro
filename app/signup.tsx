@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/Input';
@@ -14,9 +14,11 @@ import { DecorativeElements } from '@/components/ui/DecorativeElements';
 type Role = 'staff' | 'admin' | 'manager';
 
 export default function SignupScreen() {
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [role, setRole] = useState<Role>('staff');
     const [department, setDepartment] = useState('');
     const [loading, setLoading] = useState(false);
@@ -26,21 +28,47 @@ export default function SignupScreen() {
     const insets = useSafeAreaInsets();
     const { showAlert } = useAlert();
 
+    const validatePassword = (pass: string) => {
+        const requirements = [
+            { id: 1, label: 'At least 8 characters', met: pass.length >= 8 },
+            { id: 2, label: 'Contains uppercase letter', met: /[A-Z]/.test(pass) },
+            { id: 3, label: 'Contains lowercase letter', met: /[a-z]/.test(pass) },
+            { id: 4, label: 'Contains number', met: /[0-9]/.test(pass) },
+            { id: 5, label: 'Contains special character', met: /[^A-Za-z0-9]/.test(pass) },
+        ];
+        return requirements;
+    };
+
     const handleSignup = async () => {
-        if (!name || !email || !password || !department) {
+        if (!firstName || !lastName || !email || !password || !department) {
             showAlert('Error', 'Please fill in all required fields');
             return;
         }
 
+        if (firstName.length < 2 || lastName.length < 2) {
+            showAlert('Invalid Name', 'First and Last name must be at least 2 characters each.');
+            return;
+        }
+
+        const requirements = validatePassword(password);
+        const allMet = requirements.every(req => req.met);
+
+        if (!allMet) {
+            showAlert('Weak Password', 'Please ensure your password meets all safety requirements.');
+            return;
+        }
+
         setLoading(true);
-        const { success, message } = await signup(email, password, name, role, department);
-        setLoading(false);
+        const fullName = `${firstName.trim()} ${lastName.trim()}`;
+        const { success, message } = await signup(email, password, fullName, role, department);
+        setLoading(true); // Keep loading true for a moment while redirecting
 
         if (success) {
             showAlert('Success', message || 'Account created successfully!', [
                 { text: 'OK', onPress: () => router.replace('/(tabs)') }
             ]);
         } else {
+            setLoading(false);
             showAlert('Signup Failed', message || 'Could not create account. Please try again.');
         }
     };
@@ -90,12 +118,24 @@ export default function SignupScreen() {
                         </View>
 
                         <View style={styles.form}>
-                            <Input
-                                label="Full Name"
-                                value={name}
-                                onChangeText={setName}
-                                placeholder="Full name"
-                            />
+                            <View style={styles.nameRow}>
+                                <View style={styles.nameField}>
+                                    <Input
+                                        label="First Name"
+                                        value={firstName}
+                                        onChangeText={setFirstName}
+                                        placeholder="First"
+                                    />
+                                </View>
+                                <View style={styles.nameField}>
+                                    <Input
+                                        label="Last Name"
+                                        value={lastName}
+                                        onChangeText={setLastName}
+                                        placeholder="Last"
+                                    />
+                                </View>
+                            </View>
 
                             <Input
                                 label="Email Address"
@@ -111,8 +151,30 @@ export default function SignupScreen() {
                                 value={password}
                                 onChangeText={setPassword}
                                 placeholder="Password"
-                                secureTextEntry
+                                secureTextEntry={!showPassword}
+                                rightIcon={showPassword ? "visibility" : "visibility-off"}
+                                onRightIconPress={() => setShowPassword(!showPassword)}
                             />
+
+                            {password.length > 0 && (
+                                <View style={styles.passwordRequirements}>
+                                    {validatePassword(password).map(req => (
+                                        <View key={req.id} style={styles.requirementItem}>
+                                            <MaterialIcons
+                                                name={req.met ? "check-circle" : "radio-button-unchecked"}
+                                                size={14}
+                                                color={req.met ? theme.colors.success || '#4CAF50' : theme.colors.textSecondary}
+                                            />
+                                            <Text style={[
+                                                styles.requirementText,
+                                                req.met && styles.requirementMet
+                                            ]}>
+                                                {req.label}
+                                            </Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            )}
 
                             <Input
                                 label="Dept"
@@ -128,6 +190,23 @@ export default function SignupScreen() {
                                 fullWidth
                                 style={styles.signupButton}
                             />
+
+                            <View style={styles.dividerContainer}>
+                                <View style={styles.dividerLine} />
+                                <Text style={styles.dividerText}>OR</Text>
+                                <View style={styles.dividerLine} />
+                            </View>
+
+                            <TouchableOpacity 
+                                style={styles.socialButton}
+                                activeOpacity={0.8}
+                                onPress={() => showAlert('Info', 'Google Sign-In is coming soon!')}
+                            >
+                                <View style={styles.googleIconContainer}>
+                                    <FontAwesome name="google" size={20} color="#EA4335" />
+                                </View>
+                                <Text style={styles.socialButtonText}>Continue with Google</Text>
+                            </TouchableOpacity>
                         </View>
 
                         <View style={styles.footer}>
@@ -239,5 +318,67 @@ const styles = StyleSheet.create({
     loginLink: {
         color: theme.colors.primary,
         fontWeight: theme.fontWeight.bold,
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: theme.spacing.md,
+        gap: theme.spacing.sm,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: theme.colors.surfaceDark,
+    },
+    dividerText: {
+        color: theme.colors.textSecondary,
+        fontSize: 12,
+        fontWeight: theme.fontWeight.semibold,
+    },
+    socialButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: theme.borderRadius.xl,
+        height: 56,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        ...theme.shadows.sm,
+    },
+    googleIconContainer: {
+        marginRight: 12,
+    },
+    socialButtonText: {
+        fontSize: 16,
+        fontWeight: theme.fontWeight.semibold,
+        color: theme.colors.text,
+    },
+    nameRow: {
+        flexDirection: 'row',
+        gap: theme.spacing.md,
+    },
+    nameField: {
+        flex: 1,
+    },
+    passwordRequirements: {
+        backgroundColor: `${theme.colors.surfaceDark}50`,
+        padding: theme.spacing.sm,
+        borderRadius: theme.borderRadius.md,
+        marginTop: -theme.spacing.xs,
+        marginBottom: theme.spacing.sm,
+        gap: 4,
+    },
+    requirementItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    requirementText: {
+        fontSize: 11,
+        color: theme.colors.textSecondary,
+    },
+    requirementMet: {
+        color: theme.colors.success || '#4CAF50',
     },
 });

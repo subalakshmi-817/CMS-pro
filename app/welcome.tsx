@@ -31,7 +31,7 @@ export default function WelcomeScreen() {
 
     return (
         <LinearGradient
-            colors={['#D2D0F5', '#EAE0F5', '#F5E4F8']}
+            colors={[theme.colors.blue, theme.colors.pink]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.container}
@@ -88,29 +88,36 @@ export default function WelcomeScreen() {
                     { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
                 ]}
             >
-                <Text style={styles.title}>Keep going your{"\n"}learn now</Text>
-                <Text style={styles.subtitle}>
-                    Unlock rewards by staying consistent in your campus journey and claim your reward
-                </Text>
-
-                <View style={styles.paginationDots}>
-                    <View style={[styles.paginationDotActive]} />
-                    <View style={styles.paginationDot} />
-                </View>
-
-                <Pressable
-                    style={styles.button}
-                    onPress={() => router.push('/login')}
+                <LinearGradient
+                    colors={[theme.colors.lightBlue, theme.colors.lightPink]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.cardGradient}
                 >
-                    <Text style={styles.buttonText}>Sign In</Text>
-                </Pressable>
+                    <Text style={styles.title}>Keep going your{"\n"}learn now</Text>
+                    <Text style={styles.subtitle}>
+                        Unlock rewards by staying consistent in your campus journey and claim your reward
+                    </Text>
 
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>Have'nt an Account ? </Text>
-                    <Pressable onPress={() => router.push('/signup')}>
-                        <Text style={styles.signupText}>Sign Up</Text>
+                    <View style={styles.paginationDots}>
+                        <View style={[styles.paginationDotActive]} />
+                        <View style={styles.paginationDot} />
+                    </View>
+
+                    <Pressable
+                        style={styles.button}
+                        onPress={() => router.push('/login')}
+                    >
+                        <Text style={styles.buttonText}>Sign In</Text>
                     </Pressable>
-                </View>
+
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>Have'nt an Account ? </Text>
+                        <Pressable onPress={() => router.push('/signup')}>
+                            <Text style={styles.signupText}>Sign Up</Text>
+                        </Pressable>
+                    </View>
+                </LinearGradient>
             </Animated.View>
         </LinearGradient>
     );
@@ -235,15 +242,19 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     card: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'transparent',
         borderTopLeftRadius: 40,
         borderTopRightRadius: 40,
         width: '100%',
+        overflow: 'hidden',
+        ...theme.shadows.lg,
+    },
+    cardGradient: {
         padding: 30,
         paddingTop: 40,
         paddingBottom: 50,
         alignItems: 'center',
-        ...theme.shadows.lg,
+        width: '100%',
     },
     title: {
         fontSize: 28,
@@ -279,7 +290,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     button: {
-        backgroundColor: '#1E1E2D',
+        backgroundColor: theme.colors.blue,
         borderRadius: 30,
         height: 56,
         width: '100%',
@@ -287,7 +298,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonText: {
-        color: '#FFFFFF',
+        color: theme.colors.pink,
         fontSize: 16,
         fontWeight: '700',
     },

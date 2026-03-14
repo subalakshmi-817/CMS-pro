@@ -43,6 +43,8 @@ class SupabaseManager {
         console.warn('[Template:Client] This may indicate a development environment hot reload or architecture issue.');
       }
 
+      console.log(`[Template:Client] Initializing client for ${Platform.OS} with URL: ${supabaseUrl}`);
+
       this.instance = createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
           storage: this.createStorageAdapter(),

@@ -5,8 +5,10 @@ export const theme = {
     accent: '#FF9D42', // Orange for accents
     secondary: '#9D9DFF', // Soft purple
     background: '#F5F7FF', // Main background
-    pink: '#FDE2F3', // Baby Pink
-    blue: '#E3F2FD', // Light Blue
+    pink: '#FF1493', // Deep Radiant Pink
+    blue: '#0077E6', // Deep Radiant Skyblue
+    lightPink: '#FFEBFA',
+    lightBlue: '#E0F4FF',
     surface: '#FFFFFF',
     surfaceDark: '#EDEEF7',
 

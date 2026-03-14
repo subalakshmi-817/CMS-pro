@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/Input';
@@ -14,6 +14,7 @@ import { DecorativeElements } from '@/components/ui/DecorativeElements';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
@@ -79,7 +80,9 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Enter your password"
-                secureTextEntry
+                secureTextEntry={!showPassword}
+                rightIcon={showPassword ? "visibility" : "visibility-off"}
+                onRightIconPress={() => setShowPassword(!showPassword)}
               />
 
               <Button
@@ -89,6 +92,23 @@ export default function LoginScreen() {
                 fullWidth
                 style={styles.loginButton}
               />
+
+              <View style={styles.dividerContainer}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>OR</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <TouchableOpacity 
+                style={styles.socialButton}
+                activeOpacity={0.8}
+                onPress={() => showAlert('Info', 'Google Sign-In is coming soon!')}
+              >
+                <View style={styles.googleIconContainer}>
+                  <FontAwesome name="google" size={20} color="#EA4335" />
+                </View>
+                <Text style={styles.socialButtonText}>Continue with Google</Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.footer}>
@@ -170,5 +190,40 @@ const styles = StyleSheet.create({
   signupLink: {
     color: theme.colors.primary,
     fontWeight: theme.fontWeight.bold,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: theme.spacing.md,
+    gap: theme.spacing.sm,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.surfaceDark,
+  },
+  dividerText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontWeight: theme.fontWeight.semibold,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: theme.borderRadius.xl,
+    height: 56,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    ...theme.shadows.sm,
+  },
+  googleIconContainer: {
+    marginRight: 12,
+  },
+  socialButtonText: {
+    fontSize: 16,
+    fontWeight: theme.fontWeight.semibold,
+    color: theme.colors.text,
   },
 });
