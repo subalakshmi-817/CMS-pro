@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
@@ -58,10 +58,14 @@ export default function LoginScreen() {
 
           <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <MaterialIcons name="school" size={48} color={theme.colors.accent} />
+              <Image 
+                source={require('@/assets/images/logo.png')} 
+                style={{ width: 60, height: 60 }} 
+                resizeMode="contain"
+              />
             </View>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Login now to access your dashboard</Text>
+            <Text style={styles.title}>Campus Care</Text>
+            <Text style={styles.subtitle}>Secure portal for campus issue management</Text>
           </View>
 
           <View style={styles.card}>
@@ -160,9 +164,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
+    color: theme.colors.primary,
+    fontWeight: theme.fontWeight.medium,
     textAlign: 'center',
     marginTop: theme.spacing.xs,
+    opacity: 0.9,
   },
   card: {
     backgroundColor: theme.colors.surface,

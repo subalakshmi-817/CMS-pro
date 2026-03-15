@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ export default function WelcomeScreen() {
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
+    const blinkAnim = useRef(new Animated.Value(0.4)).current;
 
     useEffect(() => {
         Animated.parallel([
@@ -27,6 +28,21 @@ export default function WelcomeScreen() {
                 useNativeDriver: false,
             }),
         ]).start();
+
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(blinkAnim, {
+                    toValue: 1,
+                    duration: 1200,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(blinkAnim, {
+                    toValue: 0.4,
+                    duration: 1200,
+                    useNativeDriver: false,
+                }),
+            ])
+        ).start();
     }, []);
 
     return (
@@ -37,7 +53,14 @@ export default function WelcomeScreen() {
             style={styles.container}
         >
             <DecorativeElements />
-            <View style={[styles.content, { paddingTop: insets.top + 40 }]}>
+            <View style={[styles.content, { paddingTop: insets.top + 20 }]}>
+                <View style={styles.mainLogoContainer}>
+                    <Image 
+                        source={require('@/assets/images/logo.png')} 
+                        style={styles.mainLogo} 
+                        resizeMode="contain"
+                    />
+                </View>
                 <Animated.View
                     style={[
                         styles.illustrationContainer,
@@ -58,25 +81,24 @@ export default function WelcomeScreen() {
                             <MaterialIcons name="stars" size={18} color={theme.colors.textSecondary} />
                         </View>
 
-                        <Text style={styles.phoneTitle}>Good morning</Text>
-                        <Text style={styles.phoneSubtitle}>Campus and progress begins</Text>
+                        <Text style={styles.phoneTitle}>Campus Status</Text>
+                        <Text style={styles.phoneSubtitle}>Active issue tracking & resolution</Text>
 
                         <View style={styles.floatingCardLeft}>
-                            <FontAwesome5 name="shapes" size={24} color="#2563EB" />
-                            <Text style={styles.floatingCardText}>Your campus adventure begins</Text>
-                            <View style={styles.progressTrack}>
-                                <View style={[styles.progressBar, { width: '30%', backgroundColor: '#F59E0B' }]} />
+                            <MaterialIcons name="report-problem" size={24} color="#EF4444" />
+                            <Text style={styles.floatingCardText}>Street Light Repair</Text>
+                            <View style={styles.statusBadgePending}>
+                                <Text style={styles.statusText}>PENDING</Text>
                             </View>
-                            <Text style={styles.progressText}>30%</Text>
                         </View>
 
                         <View style={styles.floatingCardRight}>
-                            <Text style={styles.letters}>A <Text style={{ color: '#3B82F6' }}>B</Text> <Text style={{ color: '#10B981' }}>C</Text></Text>
-                            <Text style={styles.floatingCardText}>Your campus adventure begins</Text>
+                            <MaterialIcons name="check-circle" size={24} color="#10B981" />
+                            <Text style={styles.floatingCardText}>Wi-Fi Restored</Text>
                             <View style={styles.progressTrack}>
-                                <View style={[styles.progressBar, { width: '80%', backgroundColor: '#F59E0B' }]} />
+                                <View style={[styles.progressBar, { width: '100%', backgroundColor: '#10B981' }]} />
                             </View>
-                            <Text style={styles.progressText}>80%</Text>
+                            <Text style={styles.progressText}>RESOLVED</Text>
                         </View>
                     </View>
                 </Animated.View>
@@ -94,10 +116,10 @@ export default function WelcomeScreen() {
                     end={{ x: 1, y: 1 }}
                     style={styles.cardGradient}
                 >
-                    <Text style={styles.title}>Keep going your{"\n"}learn now</Text>
-                    <Text style={styles.subtitle}>
-                        Unlock rewards by staying consistent in your campus journey and claim your reward
-                    </Text>
+                    <Text style={styles.title}>Campus Care:{"\n"}Resolution Hub</Text>
+                    <Animated.Text style={[styles.subtitle, { opacity: blinkAnim }]}>
+                        Empowering students and staff to maintain a better campus environment through streamlined reporting.
+                    </Animated.Text>
 
                     <View style={styles.paginationDots}>
                         <View style={[styles.paginationDotActive]} />
@@ -126,6 +148,14 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    mainLogoContainer: {
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    mainLogo: {
+        width: 100,
+        height: 100,
     },
     starsContainer: {
         ...StyleSheet.absoluteFillObject,
@@ -238,8 +268,20 @@ const styles = StyleSheet.create({
     },
     progressText: {
         fontSize: 10,
-        color: '#9CA3AF',
-        fontWeight: '700',
+        color: '#10B981',
+        fontWeight: '800',
+    },
+    statusBadgePending: {
+        backgroundColor: '#FEF2F2',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
+        alignSelf: 'flex-start',
+    },
+    statusText: {
+        fontSize: 8,
+        color: '#EF4444',
+        fontWeight: '800',
     },
     card: {
         backgroundColor: 'transparent',
@@ -265,12 +307,16 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     subtitle: {
-        fontSize: 14,
-        color: '#6B7280',
+        fontSize: 22,
+        color: '#001A33', // Unique Deep Obsidian Navy
         textAlign: 'center',
-        lineHeight: 22,
+        lineHeight: 30,
         marginBottom: 30,
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
+        fontWeight: '900', 
+        textShadowColor: '#00F7FF', // Radiant Electric Cyan Glow
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 18,
     },
     paginationDots: {
         flexDirection: 'row',

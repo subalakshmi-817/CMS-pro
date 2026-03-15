@@ -42,7 +42,7 @@ export default function DashboardScreen() {
             <View style={styles.avatar}>
               <MaterialIcons
                 name={user?.role === 'admin' ? 'admin-panel-settings' :
-                  user?.role === 'manager' ? 'engineering' : 'face'}
+                  user?.role === 'manager' ? 'engineering' : 'badge'}
                 size={20}
                 color={theme.colors.primary}
               />
@@ -65,8 +65,8 @@ export default function DashboardScreen() {
         </View>
 
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingTitle}>Hi, Ready to {user?.role === 'staff' ? 'report?' : 'manage?'}</Text>
-          <Text style={styles.greetingSubtitle}>Track tasks and progress everyday</Text>
+          <Text style={styles.greetingTitle}>Welcome to Campus Care</Text>
+          <Text style={styles.greetingSubtitle}>Efficiently managing campus resolutions</Text>
         </View>
 
         <View style={styles.cardContainer}>
@@ -135,27 +135,27 @@ export default function DashboardScreen() {
 
         <View style={styles.recentSection}>
           <View style={styles.recentSectionHeader}>
-            <Text style={styles.recentTitle}>Ongoing tasks</Text>
-            <Text style={styles.seeAll}>See all</Text>
+            <Text style={styles.recentTitle}>Active Resolutions</Text>
+            <Text style={styles.seeAll}>View All</Text>
           </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentScroll}>
             <View style={styles.recentCard}>
-              <FontAwesome5 name="tools" size={32} color="#1E1E2D" style={{ marginBottom: 16 }} />
-              <Text style={styles.recentCardTitle}>Campus Maintenance Basics</Text>
+              <MaterialIcons name="plumbing" size={32} color="#1E1E2D" style={{ marginBottom: 16 }} />
+              <Text style={styles.recentCardTitle}>Dormitory Block A Water Leak</Text>
               <View style={styles.progressTrack}>
-                <View style={[styles.progressBar, { width: '30%', backgroundColor: '#F59E0B' }]} />
+                <View style={[styles.progressBar, { width: '30%', backgroundColor: theme.colors.warning }]} />
               </View>
-              <Text style={styles.progressText}>30%</Text>
+              <Text style={styles.progressText}>30% Processed</Text>
             </View>
 
             <View style={styles.recentCard}>
-              <Text style={styles.letters}>I <Text style={{ color: '#3B82F6' }}>T</Text> <Text style={{ color: '#10B981' }}>S</Text></Text>
-              <Text style={styles.recentCardTitle}>IT Support System Checks</Text>
+              <MaterialIcons name="wifi-tethering-error" size={32} color="#1E1E2D" style={{ marginBottom: 16 }} />
+              <Text style={styles.recentCardTitle}>Library Wi-Fi Connectivity</Text>
               <View style={styles.progressTrack}>
-                <View style={[styles.progressBar, { width: '80%', backgroundColor: '#F59E0B' }]} />
+                <View style={[styles.progressBar, { width: '80%', backgroundColor: theme.colors.success }]} />
               </View>
-              <Text style={styles.progressText}>80%</Text>
+              <Text style={styles.progressText}>80% Resolved</Text>
             </View>
           </ScrollView>
         </View>

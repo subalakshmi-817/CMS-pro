@@ -115,7 +115,7 @@ export default function ComplaintDetailScreen() {
           <Pressable onPress={() => router.back()} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
           </Pressable>
-          <Text style={styles.headerTitle}>Issue Details</Text>
+          <Text style={styles.headerTitle}>Resolution Track</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -251,7 +251,7 @@ export default function ComplaintDetailScreen() {
                         />
                       )}
                       <Button
-                        title="Complete Resolution"
+                        title="Finalize Resolution"
                         onPress={() => handleStatusChange('resolved')}
                         fullWidth
                         style={styles.solveButton}

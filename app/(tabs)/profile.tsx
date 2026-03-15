@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -54,6 +54,11 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
+          <Image 
+            source={require('@/assets/images/logo.png')} 
+            style={styles.logo} 
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Account</Text>
         </View>
 
@@ -173,6 +178,13 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: theme.spacing.xl,
     paddingVertical: theme.spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logo: {
+    width: 40,
+    height: 40,
   },
   title: {
     fontSize: 28,

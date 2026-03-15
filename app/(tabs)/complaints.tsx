@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -74,10 +74,15 @@ export default function ComplaintsScreen() {
       <DecorativeElements />
       <View style={{ flex: 1, paddingTop: insets.top }}>
         <View style={styles.header}>
+          <Image 
+            source={require('@/assets/images/logo.png')} 
+            style={styles.logo} 
+            resizeMode="contain"
+          />
           <Text style={styles.title}>
-            {user?.role === 'staff' ? 'Reports' :
-              user?.role === 'admin' ? 'Monitoring' :
-                'Tasks'}
+            {user?.role === 'staff' ? 'My Filings' :
+              user?.role === 'admin' ? 'Care Status' :
+                'Allocations'}
           </Text>
         </View>
 
@@ -141,6 +146,13 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: theme.spacing.xl,
     paddingVertical: theme.spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logo: {
+    width: 40,
+    height: 40,
   },
   title: {
     fontSize: 28,

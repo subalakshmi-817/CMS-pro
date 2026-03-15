@@ -62,7 +62,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Dashboard',
+            title: 'Care Hub',
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="dashboard" size={size} color={color} />
             ),
@@ -71,7 +71,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="complaints"
           options={{
-            title: 'Complaints',
+            title: 'Resolutions',
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="assignment" size={size} color={color} />
             ),
@@ -80,7 +80,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'Profile',
+            title: 'My Profile',
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="person" size={size} color={color} />
             ),
@@ -96,16 +96,16 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'My Tasks',
+            title: 'Assigned',
             tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="assignment" size={size} color={color} />
+              <MaterialIcons name="assignment-late" size={size} color={color} />
             ),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'Profile',
+            title: 'My Profile',
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name="person" size={size} color={color} />
             ),
@@ -127,7 +127,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
+          title: 'Care Hub',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="home" size={size} color={color} />
           ),
@@ -136,7 +136,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="complaints"
         options={{
-          title: 'My Complaints',
+          title: 'My Issues',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="list" size={size} color={color} />
           ),
@@ -145,7 +145,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'My Profile',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="person" size={size} color={color} />
           ),

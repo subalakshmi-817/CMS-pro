@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
@@ -103,17 +103,27 @@ export default function SignupScreen() {
                     </TouchableOpacity>
 
                     <View style={styles.header}>
-                        <Text style={styles.title}>Join Us</Text>
-                        <Text style={styles.subtitle}>Create your staff account today</Text>
+                         <View style={styles.logoContainer}>
+                             <Image 
+                                 source={require('@/assets/images/logo.png')} 
+                                 style={{ width: 60, height: 60 }} 
+                                 resizeMode="contain"
+                             />
+                         </View>
+                         <Text style={styles.title}>Join Campus Care</Text>
+                         <Text style={styles.subtitle}>Unified Platform for Resolution</Text>
                     </View>
 
                     <View style={styles.card}>
                         <View style={styles.roleSelector}>
-                            <Text style={styles.sectionTitle}>Select Role</Text>
+                             <View style={styles.sectionHeader}>
+                                 <MaterialIcons name="assignment-ind" size={20} color={theme.colors.primary} />
+                                 <Text style={styles.sectionTitle}>Identification Type</Text>
+                             </View>
                             <View style={styles.roleGrid}>
-                                <RoleOption type="staff" label="Staff" icon="work" />
-                                <RoleOption type="manager" label="Manager" icon="engineering" />
-                                <RoleOption type="admin" label="Admin" icon="admin-panel-settings" />
+                                <RoleOption type="staff" label="Staff Member" icon="badge" />
+                                <RoleOption type="manager" label="Dept Manager" icon="engineering" />
+                                <RoleOption type="admin" label="Administrator" icon="admin-panel-settings" />
                             </View>
                         </View>
 
@@ -236,6 +246,16 @@ const styles = StyleSheet.create({
         marginBottom: theme.spacing.xl,
         alignItems: 'center',
     },
+    logoContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: theme.borderRadius.xl,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.spacing.md,
+        ...theme.shadows.md,
+    },
     title: {
         fontSize: 32,
         fontWeight: theme.fontWeight.bold,
@@ -243,8 +263,10 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: theme.fontSize.md,
-        color: theme.colors.textSecondary,
+        color: theme.colors.primary,
+        fontWeight: theme.fontWeight.medium,
         marginTop: theme.spacing.xs,
+        opacity: 0.9,
     },
     card: {
         backgroundColor: theme.colors.surface,
@@ -254,6 +276,12 @@ const styles = StyleSheet.create({
     },
     roleSelector: {
         marginBottom: theme.spacing.lg,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: theme.spacing.sm,
     },
     sectionTitle: {
         fontSize: theme.fontSize.sm,

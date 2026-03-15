@@ -117,6 +117,7 @@ export async function signup(
     return { user, error: session ? undefined : 'Confirmation email sent. Please check your inbox.' };
   } catch (error: any) {
     console.error('Signup process failed:', error);
+    console.error('Error stack:', error.stack);
     return { user: null, error: error.message || 'An unexpected error occurred' };
   }
 }

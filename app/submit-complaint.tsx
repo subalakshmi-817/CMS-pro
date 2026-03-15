@@ -95,7 +95,7 @@ export default function SubmitComplaintScreen() {
           <Pressable onPress={() => router.back()} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
           </Pressable>
-          <Text style={styles.headerTitle}>New Issue</Text>
+          <Text style={styles.headerTitle}>Lodge Report</Text>
           <View style={{ width: 44 }} />
         </View>
 
@@ -230,7 +230,7 @@ export default function SubmitComplaintScreen() {
 
           <View style={styles.actions}>
             <Button
-              title="Send for Review"
+              title="Submit to Care Hub"
               onPress={handleSubmit}
               loading={submitting}
               fullWidth
