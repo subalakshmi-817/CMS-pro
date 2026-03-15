@@ -154,8 +154,12 @@ export const DecorativeElements = () => {
         <Sprinkle key={i} {...s} />
       ))}
       <FloatingElement name="auto-awesome" size={24} color="rgba(255, 255, 255, 0.4)" top="10%" left="5%" duration={3000} />
+      <FloatingElement name="school" size={30} color="rgba(255, 255, 255, 0.2)" top="15%" right="10%" duration={4000} />
+      <FloatingElement name="report-problem" size={25} color="rgba(255, 255, 255, 0.2)" top="45%" left="5%" duration={3500} delay={1000} />
+      <FloatingElement name="assignment-turned-in" size={22} color="rgba(255, 255, 255, 0.2)" top="65%" right="5%" duration={5000} />
       <FloatingElement name="star" size={20} color="rgba(255, 255, 255, 0.3)" top="40%" right="15%" duration={3500} delay={500} />
       <FloatingElement name="auto-awesome" size={28} color="rgba(255, 255, 255, 0.2)" top="75%" left="20%" duration={4500} />
+      <FloatingElement name="campaign" size={32} color="rgba(255, 255, 255, 0.15)" top="85%" right="35%" duration={6000} />
     </View>
   );
 };
